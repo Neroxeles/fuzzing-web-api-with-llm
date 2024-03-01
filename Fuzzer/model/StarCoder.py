@@ -18,6 +18,8 @@ from util.util import (
 )
 import util.Logger as Logger
 
+from huggingface_hub import login
+
 class Phase(enum.Enum):
   PHASE_1 = 1
   PHASE_2 = 2
@@ -77,6 +79,7 @@ class EndOfFunctionCriteria(StoppingCriteria):
 class StarCoder:
   def __init__(self, checkpoint: str = "bigcode/starcoder", device: str = "cuda") -> None:
     """Initialize the StarCoder model"""
+    login()
     Logger.section_title("Instantiate Tokenizer & Model")
     self.device = device
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
