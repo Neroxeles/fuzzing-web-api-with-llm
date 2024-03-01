@@ -130,7 +130,7 @@ class StarCoder:
       padding=False,
       truncation=False
     ).to(self.device)
-    Logger.content("Number of Tokens produced", f"Size = {input_tokens.size}\nLen = {len(input_tokens[0])}")
+    Logger.content("Number of Tokens produced", f"Size = {input_tokens.size()}\nLen = {len(input_tokens[0])}")
 
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
@@ -142,7 +142,7 @@ class StarCoder:
 
     raw_outputs = self.model.generate(
       input_tokens,
-      max_length=min(1024, len(input_tokens[0]) + 512), #TODO modify
+      max_length=min(2048, len(input_tokens[0]) + 512), #TODO modify
       do_sample=True,
       top_p=1.0,
       temperature=max(temperature, 0.01),

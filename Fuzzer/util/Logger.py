@@ -1,14 +1,15 @@
 def section_title(title: str):
   print("###################################")
-  print(f"# {title.capitalize}")
+  print(f"# {title.capitalize()}")
   print("###################################")
 
 def content(subtitle: str, content: str | dict):
   print(f"++ {subtitle}")
-  if isinstance(content, dict):
-    pretty(content)
-  else:
-    print(content)
+  # if isinstance(content, dict):
+  #   pretty(content)
+  # else:
+  #   print(content)
+  print(content)
 
 def pretty(d, indent=0):
   for key, value in d.items():

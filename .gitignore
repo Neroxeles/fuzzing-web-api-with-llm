@@ -3,3 +3,4 @@ __pycache__
 /excalidraw
 /.vscode
 /config/experimental/default-local.yml
+/logs
