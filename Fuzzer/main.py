@@ -13,7 +13,6 @@ from util.util import (
 import util.Logger as Logger
 
 from huggingface_hub import notebook_login
-notebook_login()
 
 ###########################################################################
 # PHASE I - Generate Properties
@@ -102,6 +101,7 @@ def generate_generator():
 # MAIN
 ###########################################################################
 if __name__ == "__main__":
+  notebook_login()
   # load configurations
   if len(sys.argv) != 1:
     config_filepath = str(sys.argv[1])
