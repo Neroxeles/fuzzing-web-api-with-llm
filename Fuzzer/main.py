@@ -122,8 +122,9 @@ if __name__ == "__main__":
     #TODO execute PHASE II
 
     #TODO execute PHASE III
-  except:
+  except Exception as error:
     print("Something went wrong")
+    print(error)
   finally:
     print("Free memory")
     del starcoder_model
