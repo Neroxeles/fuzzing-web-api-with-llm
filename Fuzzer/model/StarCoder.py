@@ -106,7 +106,7 @@ class StarCoder:
       oas_str_input = get_file_content(oas_path)
       file_number = re.findall(r'\d+', oas_path)[-1]
       #TODO tool_str_input = get_file_content("path/to/tool/file")
-      self.input_str = f"```\n{oas_str_input}```\nUse the OpenAPI specification above to generate API requests with Python code.\n{sentinel_tokens['fn']}program/requests_{file_number}.py\nimport requests"
+      self.input_str = f"{oas_str_input}\n\nUse the OpenAPI specification above to write a script that makes requests. Each request is a separate function.\n{sentinel_tokens['fn']}program/requests_{file_number}.py\nimport requests"
       write_str_into_file(
         content=self.input_str,
         directory=save_output_dir,
