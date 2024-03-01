@@ -1,0 +1,21 @@
+general:
+  # choose a fitting name for the current test run
+  name: "Demo"
+  # the directory that contains all produced files
+  output-dir: "/content/fuzzing-web-api-with-llm/output"
+
+model:
+  # choose one of the following possible LLM model checkpoints
+  # - bigcode/starcoderbase-1b
+  # - bigcode/starcoder
+  # see https://huggingface.co/collections/bigcode/%E2%AD%90-starcoder-64f9bd5740eb5daaeb81dbec for more
+  # and for StarCoder2 see https://huggingface.co/collections/bigcode/starcoder2-65de6da6e87db3383572be1a
+  #TODO examples: how much RAM needs each checkpoint?
+  checkpoint: "bigcode/starcoderbase-1b"
+  # choose one of the following devices
+  # - cpu
+  # - cuda (recommended)
+  device: "cuda"
+
+phase-i:
+  oas-file: "/content/fuzzing-web-api-with-llm/OAS/Experimental/restful_oas.yml"
