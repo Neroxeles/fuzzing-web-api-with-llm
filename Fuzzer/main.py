@@ -12,6 +12,9 @@ from util.util import (
 )
 import util.Logger as Logger
 
+from huggingface_hub import notebook_login
+notebook_login()
+
 ###########################################################################
 # PHASE I - Generate Properties
 ###########################################################################
