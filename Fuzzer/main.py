@@ -8,20 +8,20 @@ from model.StarCoder import (
 )
 from util.util import (
   load_yml_file,
-  write_yml_file
+  write_yml_file,
+  write_str_into_file
 )
 import util.Logger as Logger
 
 ###########################################################################
 # PHASE I - Generate Properties
 ###########################################################################
-def generate_properties(model: StarCoder, config: dict[str, any]):
+def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
   """Phase I - Generate Properties"""
   # setup output dirs
-  output_dir = str(config['output-dir']) + "/" + str(config['name']) + "/" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-  oas_output_dir = output_dir + "/oas-parts"
-  str_output_dir = output_dir + "/phase-i/input-strings"
-  llm_output_dir = output_dir + "/phase-i/generated-output"
+  oas_output_dir = config['output-dir'] + "/oas-parts"
+  str_output_dir = config['output-dir'] + "/phase-i/input-strings"
+  llm_output_dir = config['output-dir'] + "/phase-i/generated-output"
   os.makedirs(oas_output_dir, exist_ok=True)
   os.makedirs(str_output_dir, exist_ok=True)
   os.makedirs(llm_output_dir, exist_ok=True)
@@ -73,25 +73,70 @@ def generate_properties(model: StarCoder, config: dict[str, any]):
       save_output_dir=str_output_dir,
       save_file_name=f"part-{counter}.md"
     )
-    #TODO Generate Properties
+    # Generate Properties
+    outputs = model.generate()
+    while(any(empty_solution in outputs for empty_solution in empty_solutions)):
+      outputs = model.generate()
+    write_str_into_file(
+      content="import requests",
+      directory=llm_output_dir,
+      filename=f"part-{counter}.py",
+      mode="w"
+    )
+    for output in outputs:
+      Logger.section_title(f"Generator Output - len(outputs) = {len(outputs)}")
+      Logger.content("Output", output)
+      write_str_into_file(
+        content=output,
+        directory=llm_output_dir,
+        filename=f"part-{counter}.py",
+        mode="a"
+      )
+  #TODO Merge produced python files into one file
+
+###########################################################################
+# PHASE II - Generate Type Generators
+###########################################################################
+def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
+  oas_output_dir: str = config['output-dir'] + "/oas-parts"
+  str_output_dir: str = config['output-dir'] + "/phase-ii/input-strings"
+  llm_output_dir: str = config['output-dir'] + "/phase-ii/generated-output"
+  os.makedirs(str_output_dir, exist_ok=True)
+  os.makedirs(llm_output_dir, exist_ok=True)
+
+  empty_solutions = ["pass", "insert code here"]
+  part_file: str
+  for part_file in os.listdir(oas_output_dir):
+    # Select specification & corresponding program part
+    oas_part_file = oas_output_dir + f"/{part_file}"
+    python_part_file = llm_output_dir.replace("phase-ii", "phase-i") + f"/{part_file.replace(".md", ".py")}"
+    # Build input prompt
+    model.apply_chat_template(
+      phase=Phase.PHASE_2,
+      save_output_dir=str_output_dir,
+      save_file_name=part_file,
+      oas_path=oas_part_file,
+      python_path=python_part_file
+    )
+    # Generate Type Generators
     outputs = model.generate()
     while(any(empty_solution in outputs for empty_solution in empty_solutions)):
       outputs = model.generate()
     for output in outputs:
-      Logger.section_title("Generator Output")
+      Logger.section_title(f"Generator Output - len(outputs) = {len(outputs)}")
       Logger.content("Output", output)
+      write_str_into_file(
+        content=output,
+        directory=llm_output_dir,
+        filename=part_file.replace(".md", ".py"),
+        mode="a"
+      )
   #TODO Merge produced python files into one file
-
-###########################################################################
-#TODO PHASE II - Generate Type Generators
-###########################################################################
-def generate_type_generators():
-  pass
 
 ###########################################################################
 #TODO PHASE III - Generate Generator
 ###########################################################################
-def generate_generator():
+def generate_generator() -> None:
   pass
 
 
@@ -111,16 +156,17 @@ if __name__ == "__main__":
   config_model: dict[str, any] = config_dict['model']
   config_phase_i: dict[str, any] = config_dict['phase-i']
 
-  # Create a StarCoder instance
+  config_general['output-dir'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
   try:
+    # Create a StarCoder instance
     starcoder_model = instantiate_model(config=config_model)
 
     # execute PHASE I
     config_phase_i.update(config_general)
     generate_properties(model=starcoder_model, config=config_phase_i)
-
-    #TODO execute PHASE II
-
+    # execute PHASE II
+    generate_type_generators(model=starcoder_model, config=config_general)
     #TODO execute PHASE III
   except Exception as error:
     print("Something went wrong")
