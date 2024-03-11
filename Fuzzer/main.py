@@ -65,6 +65,7 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
   empty_solutions = ["pass", "insert code here"]
   counter = 0
   for oas_part in os.listdir(oas_output_dir):
+    Logger.section_title(f"Generator Output - {counter}")
     counter += 1
     # Build input prompt
     model.apply_chat_template(
@@ -84,8 +85,6 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
       mode="w"
     )
     for output in outputs:
-      Logger.section_title(f"Generator Output - len(outputs) = {len(outputs)}")
-      Logger.content("Output", output)
       write_str_into_file(
         content=output,
         directory=llm_output_dir,
@@ -162,10 +161,18 @@ if __name__ == "__main__":
 
   try:
     # Create a StarCoder instance
+    Logger.section_title("Instantiate Tokenizer & Model")
     starcoder_model = instantiate_model(config=config_model)
+    Logger.subsection_title("Initialized with ...")
+    for key in config_model:
+      Logger.content(f"{key}: {config_model[key]}")
 
     # execute PHASE I
+    Logger.section_title("Starting Phase I")
     config_phase_i.update(config_general)
+    Logger.subsection_title("Initialized with ...")
+    for key in config_phase_i:
+      Logger.content(f"{key}: {config_phase_i[key]}")
     generate_properties(model=starcoder_model, config=config_phase_i)
     # execute PHASE II
     # generate_type_generators(model=starcoder_model, config=config_general)

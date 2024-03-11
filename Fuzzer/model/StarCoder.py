@@ -80,7 +80,6 @@ class StarCoder:
   def __init__(self, checkpoint: str = "bigcode/starcoder", device: str = "cuda") -> None:
     """Initialize the StarCoder model"""
     login()
-    Logger.section_title("Instantiate Tokenizer & Model")
     self.device = device
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
@@ -88,8 +87,6 @@ class StarCoder:
                               .to(torch.bfloat16)
                               .to(self.device)
     )
-    Logger.content("Tokenizer configuration from pretrained", self.tokenizer.pretrained_init_configuration)
-    Logger.content("Model configuration from pretrained", self.tokenizer.pretrained_init_configuration)
     self.eos = []
     self.input_str = ""
 
@@ -141,7 +138,8 @@ class StarCoder:
       padding=False,
       truncation=False
     ).to(self.device)
-    Logger.content("Number of Tokens produced", f"Size = {input_tokens.size()}\nLen = {len(input_tokens[0])}")
+    Logger.subsection_title("Number of Input Tokens")
+    Logger.content(f"Tokens = {len(input_tokens[0])}")
 
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
@@ -164,6 +162,9 @@ class StarCoder:
       repetition_penalty=1.0,
       pad_token_id=self.tokenizer.eos_token_id
     )
+
+    Logger.subsection_title("Number of Output Tokens")
+    Logger.content(f"Tokens = {len(raw_outputs[0])}")
 
     #TODO What? o.O
     gen_seqs = raw_outputs.sequences[:, len(input_tokens[0]) :]
