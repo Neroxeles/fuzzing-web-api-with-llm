@@ -93,7 +93,7 @@ class StarCoder:
     self.eos = []
     self.input_str = ""
 
-  def apply_chat_template(self, phase: Phase, oas_path: str, save_output_dir: str, save_file_name: str) -> None:
+  def apply_chat_template(self, phase: Phase, save_output_dir: str, save_file_name: str, oas_path: str = None, python_path: str = None) -> None:
     """Build input string for the StarCoder generator"""
     # sentinel_tokens = [
     #   "<fim_prefix>", "<fim_middle>", "<fim_suffix>", "<fim_pad>",
@@ -106,16 +106,27 @@ class StarCoder:
       oas_str_input = get_file_content(oas_path)
       file_number = re.findall(r'\d+', oas_path)[-1]
       #TODO tool_str_input = get_file_content("path/to/tool/file")
-      self.input_str = f"{oas_str_input}\n\nUse the OpenAPI specification above to write a script that makes requests. Each request is a separate function.\n{sentinel_tokens['fn']}program/requests_{file_number}.py\nimport requests"
+      self.input_str = f"{oas_str_input}\n\nUse the OpenAPI specification above to write a script. Each request is a separate function.\n{sentinel_tokens['fn']}program/requests_{file_number}.py\nimport requests"
       write_str_into_file(
         content=self.input_str,
         directory=save_output_dir,
-        filename=save_file_name
+        filename=save_file_name,
+        mode="w"
       )
       self.eos = ["<|endoftext|>", "Use the OpenAPI specification", "import requests"]
     
     if phase == Phase.PHASE_2:
-      pass
+      oas_str_input = get_file_content(save_output_dir + f"/oas-parts/{save_file_name}.md")
+      python_str_input = get_file_content(save_output_dir + f"/phase-i/generated-output/{save_file_name}.py")
+      self.input_str = f"OpenAPI specification:\n{oas_str_input}\n\nCorresponding request written in Python:\n{python_str_input}\n\nCreate for each existing Argument a own function that generates random values.\n{sentinel_tokens['fn']}program/random_{file_number}.py"
+      write_str_into_file(
+        content=self.input_str,
+        directory=save_output_dir,
+        filename=save_file_name,
+        mode="w"
+      )
+      self.eos = ["<|endoftext|>", "OpenAPI specification", "Corresponding request written in Python", "Create for each existing Argument a own function that generates random values"]
+
     if phase == Phase.PHASE_3:
       pass
 
