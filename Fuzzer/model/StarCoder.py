@@ -164,7 +164,7 @@ class StarCoder:
     )
 
     Logger.subsection_title("Number of Output Tokens")
-    Logger.content(f"Tokens = {len(raw_outputs[0])}")
+    Logger.content(f"Raw Output = {raw_outputs}")
 
     #TODO What? o.O
     gen_seqs = raw_outputs.sequences[:, len(input_tokens[0]) :]
