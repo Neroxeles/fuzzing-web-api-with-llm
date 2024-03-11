@@ -98,6 +98,7 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
 # PHASE II - Generate Type Generators
 ###########################################################################
 def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
+  """Phase II - Generate Type Generators"""
   oas_output_dir: str = config['output-dir'] + "/oas-parts"
   str_output_dir: str = config['output-dir'] + "/phase-ii/input-strings"
   llm_output_dir: str = config['output-dir'] + "/phase-ii/generated-output"
@@ -137,6 +138,7 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
 #TODO PHASE III - Generate Generator
 ###########################################################################
 def generate_generator() -> None:
+  """Phase III - Generate Generator"""
   pass
 
 
