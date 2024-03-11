@@ -76,10 +76,15 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
     )
     # Generate Properties
     outputs = model.generate()
-    Logger.section_title(f"output array len = {len(outputs)}")
-    Logger.section_title(f"output = {outputs}")
-    while(any(empty_solution in outputs for empty_solution in empty_solutions)):
-      outputs = model.generate()
+    empty_solution_found = True
+    while empty_solution_found:
+      empty_solution_found = False
+      for output in outputs:
+        if any(empty_solution in output for empty_solution in empty_solutions):
+          Logger.content(f"Found empty solution... generate new one...")
+          outputs = model.generate()
+          empty_solution_found = True
+
     write_str_into_file(
       content="import requests",
       directory=llm_output_dir,
