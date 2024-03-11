@@ -16,6 +16,6 @@ def get_file_content(filepath: str) -> str:
     data = f.read()
   return data
 
-def write_str_into_file(content: str, directory: str, filename: str, mode: str = "w" | "a") -> None:
+def write_str_into_file(content: str, directory: str, filename: str, mode: str) -> None:
   with open(f"{directory}/{filename}", mode=mode) as f:
     f.write(content)
