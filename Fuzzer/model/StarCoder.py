@@ -163,11 +163,10 @@ class StarCoder:
       pad_token_id=self.tokenizer.eos_token_id
     )
 
-    Logger.subsection_title("Number of Output Tokens")
-    Logger.content(f"Raw Output = {raw_outputs}")
-
     #TODO What? o.O
     gen_seqs = raw_outputs.sequences[:, len(input_tokens[0]) :]
+    Logger.subsection_title("Number of Output Tokens")
+    Logger.content(f"Tokens = {len(gen_seqs[0])}")
     gen_strs = self.tokenizer.batch_decode(
       gen_seqs, skip_special_tokens=False
     )
