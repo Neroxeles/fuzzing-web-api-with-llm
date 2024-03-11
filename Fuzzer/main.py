@@ -110,7 +110,7 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
   for part_file in os.listdir(oas_output_dir):
     # Select specification & corresponding program part
     oas_part_file = oas_output_dir + f"/{part_file}"
-    python_part_file = llm_output_dir.replace("phase-ii", "phase-i") + f"/{part_file.replace(".md", ".py")}"
+    python_part_file = llm_output_dir.replace("phase-ii", "phase-i") + "/" + part_file.replace(".md", ".py")
     # Build input prompt
     model.apply_chat_template(
       phase=Phase.PHASE_2,
