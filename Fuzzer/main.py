@@ -168,7 +168,7 @@ if __name__ == "__main__":
     config_phase_i.update(config_general)
     generate_properties(model=starcoder_model, config=config_phase_i)
     # execute PHASE II
-    generate_type_generators(model=starcoder_model, config=config_general)
+    # generate_type_generators(model=starcoder_model, config=config_general)
     #TODO execute PHASE III
   except Exception as error:
     print("Something went wrong")
