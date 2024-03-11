@@ -76,6 +76,8 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
     )
     # Generate Properties
     outputs = model.generate()
+    Logger.section_title(f"output array len = {len(outputs)}")
+    Logger.section_title(f"output = {outputs}")
     while(any(empty_solution in outputs for empty_solution in empty_solutions)):
       outputs = model.generate()
     write_str_into_file(
