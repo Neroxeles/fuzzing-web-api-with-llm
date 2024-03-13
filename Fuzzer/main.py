@@ -9,7 +9,8 @@ from model.StarCoder import (
 from util.util import (
   load_yml_file,
   write_yml_file,
-  write_str_into_file
+  write_str_into_file,
+  print_gpu_utilization
 )
 import util.Logger as Logger
 
@@ -65,8 +66,8 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
   empty_solutions = ["pass", "insert code here"]
   counter = 0
   for oas_part in os.listdir(oas_output_dir):
-    Logger.section_title(f"Generator Output - {counter}")
     counter += 1
+    Logger.section_title(f"Generator Output - Part {counter}")
     # Build input prompt
     model.apply_chat_template(
       phase=Phase.PHASE_1,
@@ -167,12 +168,16 @@ if __name__ == "__main__":
   config_general['output-dir'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
   try:
+    # print current gpu load at the beginning
+    print_gpu_utilization()
     # Create a StarCoder instance
     Logger.section_title("Instantiate Tokenizer & Model")
     starcoder_model = instantiate_model(config=config_model)
     Logger.subsection_title("Initialized with ...")
     for key in config_model:
       Logger.content(f"{key}: {config_model[key]}")
+    # print current gpu load after the model is loaded
+    print_gpu_utilization()
 
     # execute PHASE I
     Logger.section_title("Starting Phase I")
