@@ -83,9 +83,9 @@ class StarCoder:
     self.device = device
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
-      GPTBigCodeForCausalLM.from_pretrained(checkpoint)
-                              .to(torch.uint8) # accepts floating point or complex dtypes
-                              .to(self.device)
+      GPTBigCodeForCausalLM.from_pretrained(checkpoint, device_map="auto", torch_dtype=torch.bfloat16)
+                              # .to(torch.bfloat16) # accepts floating point or complex dtypes
+                              # .to(self.device)
     )
     self.eos = []
     self.input_str = ""
