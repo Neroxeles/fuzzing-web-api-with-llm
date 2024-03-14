@@ -87,7 +87,7 @@ class StarCoder:
         checkpoint,
         device_map="auto",
         offload_folder="offload",
-        offload_state_dict=True,
+        # offload_state_dict=True,
         torch_dtype=torch.bfloat16
       )
                               # .to(torch.bfloat16) # accepts floating point or complex dtypes
