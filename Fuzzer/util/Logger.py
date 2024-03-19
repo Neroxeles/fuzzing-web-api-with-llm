@@ -1,20 +1,11 @@
-def section_title(title: str):
-  print("###################################")
-  print(f"# {title.capitalize()}")
-  print("###################################")
+class Logger:
+  def __init__(self, filepath: str):
+    self.filepath = filepath
 
-def content(subtitle: str, content: str | dict):
-  print(f"++ {subtitle}")
-  # if isinstance(content, dict):
-  #   pretty(content)
-  # else:
-  #   print(content)
-  print(content)
+  def content(self, content: str):
+    print(f"{content}", end="")
+    with open(self.filepath, "a") as f:
+      f.write(content)
 
-def pretty(d, indent=0):
-  for key, value in d.items():
-    print('\t' * indent + str(key))
-    if isinstance(value, dict):
-      pretty(value, indent+1)
-    else:
-      print('\t' * (indent+1) + str(value))
+def make_logger(filepath: str) -> Logger:
+  return Logger(filepath)
