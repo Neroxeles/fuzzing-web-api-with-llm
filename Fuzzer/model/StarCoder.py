@@ -3,7 +3,12 @@ import torch
 import enum
 import re
 
+from accelerate import (
+  infer_auto_device_map,
+  init_empty_weights
+)
 from transformers import (
+  AutoConfig,
   AutoModelForCausalLM, GPTBigCodeForCausalLM,
   AutoTokenizer,
   PreTrainedTokenizer,
@@ -11,12 +16,14 @@ from transformers import (
   StoppingCriteria,
   StoppingCriteriaList
 )
-
+from timeit import default_timer as timer
 from util.util import (
   get_file_content,
-  write_str_into_file
+  write_str_into_file,
+  write_dict_to_file,
+  load_dict_from_file
 )
-import util.Logger as Logger
+from util.Logger import Logger
 
 from huggingface_hub import login
 
@@ -77,22 +84,44 @@ class EndOfFunctionCriteria(StoppingCriteria):
         return all(done)
 
 class StarCoder:
-  def __init__(self, checkpoint: str = "bigcode/starcoder", device: str = "cuda") -> None:
+  def __init__(
+      self,
+      logger: Logger,
+      device_map_path: str,
+      offload_folder: str = "offload",
+      checkpoint: str = "bigcode/starcoder",
+      device: str = "cuda"
+    ) -> None:
     """Initialize the StarCoder model"""
     login()
+    self.log = logger
     self.device = device
+
+    # config = AutoConfig.from_pretrained(checkpoint)
+    # with init_empty_weights():
+    #   empty_model = AutoModelForCausalLM.from_config(config)
+    # empty_model.tie_weights()
+    # device_map = infer_auto_device_map(empty_model, no_split_module_classes=["OPTDecoderLayer"], dtype="bfloat16")
+    # write_dict_to_file(
+    #   device_map,
+    #   directory="/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output",
+    #   filename="device_map.json"
+    # )
+
+    device_map = load_dict_from_file(device_map_path)
+
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
       GPTBigCodeForCausalLM.from_pretrained(
         checkpoint,
-        device_map="auto",
-        offload_folder="offload",
-        # offload_state_dict=True,
+        device_map=device_map,
+        offload_folder=offload_folder,
+        offload_state_dict=True,
         torch_dtype=torch.bfloat16
       )
-                              # .to(torch.bfloat16) # accepts floating point or complex dtypes
-                              # .to(self.device)
     )
+    # self.model.save_pretrained("/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/saved_models/model")
+    # self.tokenizer.save_pretrained("/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/saved_models/tokenizer")
     self.eos = []
     self.input_str = ""
 
@@ -136,6 +165,7 @@ class StarCoder:
   @torch.inference_mode()
   def generate(self, temperature: float = 1.0, batch_size: int = 1, max_length: int = 512) -> list[str]:
     """Generates Output (e.g. Python Code)"""
+    start = timer()
     #TODO experiment with padding and truncation strategies
     # Converts a string to a sequence of ids (integer), using the tokenizer and vocabulary.
     input_tokens: torch.Tensor = self.tokenizer.encode(
@@ -144,8 +174,7 @@ class StarCoder:
       padding=False,
       truncation=False
     ).to(self.device)
-    Logger.subsection_title("Number of Input Tokens")
-    Logger.content(f"Tokens = {len(input_tokens[0])}")
+    self.log.content(f"- Number of Input Tokens = {len(input_tokens[0])}\n")
 
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
@@ -171,8 +200,6 @@ class StarCoder:
 
     #TODO What? o.O
     gen_seqs = raw_outputs.sequences[:, len(input_tokens[0]) :]
-    Logger.subsection_title("Number of Output Tokens")
-    Logger.content(f"Tokens = {len(gen_seqs[0])}")
     gen_strs = self.tokenizer.batch_decode(
       gen_seqs, skip_special_tokens=False
     )
@@ -184,12 +211,18 @@ class StarCoder:
         if eos in output:
           min_index = min(min_index, output.index(eos))
       outputs.append(output[:min_index])
+    end = timer()
+    self.log.content(f"- Number of Output Tokens = {len(gen_seqs[0])}\n")
+    self.log.content(f"- Execution time = {end - start} seconds\n")
     return outputs
 
-def instantiate_model(config: dict[str, any]) -> StarCoder:
+def instantiate_model(config: dict[str, any], logger: Logger) -> StarCoder:
   """Returns a instance of the StarCoder model"""
   model_obj = StarCoder(
     checkpoint=config['checkpoint'],
-    device=config['device']
+    device=config['device'],
+    device_map_path=config['device-map'],
+    offload_folder=config['offload-folder'],
+    logger=logger
   )
   return model_obj

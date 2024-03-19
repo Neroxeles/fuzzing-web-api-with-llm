@@ -2,5 +2,7 @@ __pycache__
 /output
 /excalidraw
 /.vscode
-/config/experimental/default-local.yml
+/configs/config-files/default-local.yml
 /logs
+/saved_models
+/offload

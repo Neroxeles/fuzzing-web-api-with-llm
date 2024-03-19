@@ -6,19 +6,26 @@ from model.StarCoder import (
   StarCoder,
   instantiate_model
 )
+import re
+from timeit import default_timer as timer
 from util.util import (
   load_yml_file,
   write_yml_file,
   write_str_into_file,
   print_gpu_utilization
 )
-import util.Logger as Logger
+from util.Logger import (
+  Logger,
+  make_logger
+)
+Log: Logger
 
 ###########################################################################
 # PHASE I - Generate Properties
 ###########################################################################
 def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
   """Phase I - Generate Properties"""
+  Log.content("## Start generation process\n")
   # setup output dirs
   oas_output_dir = config['output-dir'] + "/oas-parts"
   str_output_dir = config['output-dir'] + "/phase-i/input-strings"
@@ -67,7 +74,8 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
   counter = 0
   for oas_part in os.listdir(oas_output_dir):
     counter += 1
-    Logger.section_title(f"Generator Output - Part {counter}")
+    Log.content(f"### Processing - Part {counter}\n")
+    Log.content(f"- apply_chat_template: ")
     # Build input prompt
     model.apply_chat_template(
       phase=Phase.PHASE_1,
@@ -75,17 +83,33 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
       save_output_dir=str_output_dir,
       save_file_name=f"part-{counter}.md"
     )
+    Log.content(f"done\n")
     # Generate Properties
+    Log.content(f"#### generate code ...\n")
     outputs = model.generate()
     empty_solution_found = True
     while empty_solution_found:
       empty_solution_found = False
       for output in outputs:
-        if any(empty_solution in output for empty_solution in empty_solutions):
-          Logger.content(f"Found empty solution... generate new one...")
-          outputs = model.generate()
-          empty_solution_found = True
+        # if any(empty_solution in output for empty_solution in empty_solutions):
+        for empty_solution in empty_solutions:
+          if any(empty_solution == word for word in output.split()):
+            Log.content(f"\nfailed solution (found empty solution)\n")
+            Log.content("```python\n")
+            Log.content("import requests\n")
+            for output in outputs:
+              Log.content(f"{output}")
+            Log.content("\n```\n")
+            Log.content(f"#### generate code ...\n")
+            outputs = model.generate()
+            empty_solution_found = True
+            break
+        if empty_solution_found:
+          break
+    Log.content(f"\nsuccessful solution\n")
 
+    Log.content("```python\n")
+    Log.content("import requests\n")
     write_str_into_file(
       content="import requests",
       directory=llm_output_dir,
@@ -93,12 +117,14 @@ def generate_properties(model: StarCoder, config: dict[str, any]) -> None:
       mode="w"
     )
     for output in outputs:
+      Log.content(f"{output}")
       write_str_into_file(
         content=output,
         directory=llm_output_dir,
         filename=f"part-{counter}.py",
         mode="a"
       )
+    Log.content("\n```\n")
   #TODO Merge produced python files into one file
 
 ###########################################################################
@@ -158,7 +184,7 @@ if __name__ == "__main__":
     config_filepath = str(sys.argv[1])
   else:
     print("Please define the path to a config file")
-    print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/config/experimental/default-colab.yml\"'")
+    print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/configs/config-files/default-colab.yml\"'")
     exit(0)
   config_dict = load_yml_file(config_filepath)
   config_general: dict[str, any] = config_dict['general']
@@ -166,33 +192,56 @@ if __name__ == "__main__":
   config_phase_i: dict[str, any] = config_dict['phase-i']
 
   config_general['output-dir'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+  os.makedirs(config_general['output-dir'], exist_ok=True)
+  Log = make_logger(filepath=config_general['output-dir'] + "/logger.md")
 
   try:
-    # print current gpu load at the beginning
-    print_gpu_utilization()
-    # Create a StarCoder instance
-    Logger.section_title("Instantiate Tokenizer & Model")
-    starcoder_model = instantiate_model(config=config_model)
-    Logger.subsection_title("Initialized with ...")
+    Log.content("# Instantiate tokenizer & model\n")
+    gpu_load = print_gpu_utilization()
+    Log.content("## Initialized with ...\n")
+    Log.content("```json\n{\n")
     for key in config_model:
-      Logger.content(f"{key}: {config_model[key]}")
-    # print current gpu load after the model is loaded
-    print_gpu_utilization()
+      Log.content(f"  \"{key}\": \"{config_model[key]}\"\n")
+    Log.content("}\n```\n")
+    start = timer()
+    starcoder_model = instantiate_model(config=config_model, logger= Log)
+    end = timer()
+    Log.content("## Execution time\n")
+    Log.content(f"- start = {start}\n")
+    Log.content(f"- end = {end}\n")
+    Log.content(f"- passed time = {end - start} seconds\n")
+    Log.content("## GPU load\n")
+    Log.content(f"- before model is loaded = {gpu_load} MB\n")
+    Log.content(f"- after model is loaded = {print_gpu_utilization()} MB\n")
+    Log.content(f"- difference = {print_gpu_utilization() - gpu_load} MB\n")
 
     # execute PHASE I
-    Logger.section_title("Starting Phase I")
+    Log.content("# Phase I - generate properties\n")
     config_phase_i.update(config_general)
-    Logger.subsection_title("Initialized with ...")
+    Log.content("## Initialized with ...\n")
+    Log.content("```json\n{\n")
     for key in config_phase_i:
-      Logger.content(f"{key}: {config_phase_i[key]}")
+      Log.content(f"  \"{key}\": \"{config_phase_i[key]}\"\n")
+    Log.content("}\n```\n")
+    start = timer()
     generate_properties(model=starcoder_model, config=config_phase_i)
+    end = timer()
+    Log.content("## Execution time\n")
+    Log.content(f"- start = {start}\n")
+    Log.content(f"- end = {end}\n")
+    Log.content(f"- passed time = {end - start} seconds\n")
     # execute PHASE II
     # generate_type_generators(model=starcoder_model, config=config_general)
     #TODO execute PHASE III
   except Exception as error:
-    print("Something went wrong")
-    print(error)
+    Log.content("# Exception during execution\n")
+    Log.content(f"{error}")
   finally:
-    print("Free memory")
-    del starcoder_model
-    torch.cuda.empty_cache()
+    Log.content("# Process is terminated\n")
+    try:
+      Log.content("Free memory\n")
+      del starcoder_model
+      torch.cuda.empty_cache()
+    except Exception as error:
+      Log.content("## Free memory exception\n")
+      Log.content(f"{error}")

@@ -1,6 +1,7 @@
 import os
 import yaml
 from pynvml import *
+import json
 
 ###########################################################################
 # Write & read files
@@ -25,16 +26,24 @@ def write_str_into_file(content: str, directory: str, filename: str, mode: str) 
   with open(f"{directory}/{filename}", mode=mode) as f:
     f.write(content)
 
+def write_dict_to_file(dictionary: dict, directory: str, filename: str) -> None:
+  with open(f"{directory}/{filename}", "w") as f:
+    json.dump(dictionary, f)
+
+def load_dict_from_file(filepath: str) -> dict:
+  with open(filepath, "r") as f:
+    data = json.load(f)
+  return data
 
 ###########################################################################
 # GPU stats
 ###########################################################################
 
-def print_gpu_utilization():
+def print_gpu_utilization() -> int:
     nvmlInit()
     handle = nvmlDeviceGetHandleByIndex(0)
     info = nvmlDeviceGetMemoryInfo(handle)
-    print(f"GPU memory occupied: {info.used//1024**2} MB.")
+    return int(info.used//1024**2)
 
 
 def print_summary(result):

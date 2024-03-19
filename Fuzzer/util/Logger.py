@@ -1,10 +1,11 @@
-def section_title(title: str):
-  print("########################################################")
-  print(f"# {title.upper()}")
-  print("########################################################")
+class Logger:
+  def __init__(self, filepath: str):
+    self.filepath = filepath
 
-def subsection_title(subtitle: str):
-  print(f"++ {subtitle.upper()}")
+  def content(self, content: str):
+    print(f"{content}", end="")
+    with open(self.filepath, "a") as f:
+      f.write(content)
 
-def content(content: str | dict):
-  print(f"{content}")
+def make_logger(filepath: str) -> Logger:
+  return Logger(filepath)
