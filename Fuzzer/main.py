@@ -130,7 +130,7 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
           filename="snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py",
           mode="a"
         )
-      if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 20):
+      if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 40):
         Log.content("  - Empty solution found. Repeat process...\n")
         loop -= 1
         continue
