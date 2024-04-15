@@ -2,6 +2,7 @@ import os
 import yaml
 from pynvml import *
 import json
+import hashlib
 
 ###########################################################################
 # Write & read files
@@ -34,6 +35,29 @@ def load_dict_from_file(filepath: str) -> dict:
   with open(filepath, "r") as f:
     data = json.load(f)
   return data
+
+###########################################################################
+# Checksum
+###########################################################################
+
+def md5(filepath: str) -> str:
+  hash_md5 = hashlib.md5()
+  with open(filepath, "rb") as f:
+    for chunk in iter(lambda: f.read(4096), b""):
+      hash_md5.update(chunk)
+  return hash_md5.hexdigest()
+
+def save_md5(filepath: str, checksum: str) -> None:
+  with open(filepath, "r") as f:
+    data = f.readlines()
+  for idx, line in enumerate(data):
+    if "oas-checksum" in line:
+      data[idx] = f"  oas-checksum: \"{checksum}\"\n"
+  with open(filepath, "w") as f:
+    f.writelines(data)
+
+def dir_exists(filepath: str) -> bool:
+  return os.path.isdir(filepath)
 
 ###########################################################################
 # GPU stats
