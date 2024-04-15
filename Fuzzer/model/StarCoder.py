@@ -131,7 +131,7 @@ class StarCoder:
         offload_state_dict=True,
         torch_dtype=torch.bfloat16,
         # load_in_8bit=True
-        local_files_only=True
+        # local_files_only=True
       )
     )
 
