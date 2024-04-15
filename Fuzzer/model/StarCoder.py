@@ -89,6 +89,7 @@ class StarCoder:
       device_map_path: str,
       offload_folder: str = "offload",
       checkpoint: str = "bigcode/starcoder",
+      cache_dir:str = "/.cache/huggingface/hub",
       device: str = "cuda",
       batch_size: int = 1,
       temperature: float = 1,
@@ -129,7 +130,7 @@ class StarCoder:
         offload_state_dict=True,
         torch_dtype=torch.bfloat16,
         # load_in_8bit=True
-        cache_dir="/content/drive/MyDrive/models",
+        cache_dir=cache_dir,
         local_files_only=True
       )
     )
@@ -233,6 +234,7 @@ def instantiate_model(config: dict[str, any], logger: Logger) -> StarCoder:
     temperature=config['temperature'],
     top_k=config['top-k'],
     top_p=config['top-p'],
-    do_sample=config['do-sample']
+    do_sample=config['do-sample'],
+    cache_dir=config['cache-dir']
   )
   return model_obj
