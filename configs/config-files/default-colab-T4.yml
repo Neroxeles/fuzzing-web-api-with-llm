@@ -16,7 +16,7 @@ model:
   # and for StarCoder2 see https://huggingface.co/collections/bigcode/starcoder2-65de6da6e87db3383572be1a
   # bigcode/starcoderbase-1b with torch.bfloat16 -> 2666 MB.
   # bigcode/starcoderbase with torch.bfloat16 -> ~32 GB.
-  checkpoint: "/content/drive/MyDrive/models/starcoder-1b"
+  checkpoint: "bigcode/starcoderbase-1b"
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda (not used because of device_map)
