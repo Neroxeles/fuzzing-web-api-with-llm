@@ -125,12 +125,12 @@ class StarCoder:
     self.model = (
       GPTBigCodeForCausalLM.from_pretrained(
         checkpoint,
+        cache_dir=cache_dir,
         device_map=device_map,
         offload_folder=offload_folder,
         offload_state_dict=True,
         torch_dtype=torch.bfloat16,
         # load_in_8bit=True
-        cache_dir=cache_dir,
         local_files_only=True
       )
     )
