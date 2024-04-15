@@ -129,7 +129,7 @@ class StarCoder:
         offload_state_dict=True,
         torch_dtype=torch.bfloat16,
         # load_in_8bit=True
-        cache_dir="/content/drive/MyDrive/models/starcoder-1b",
+        cache_dir="/content/drive/MyDrive/models",
         local_files_only=True
       )
     )
