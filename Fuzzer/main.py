@@ -16,7 +16,9 @@ from util.util import (
   md5,
   save_md5,
   dir_exists,
-  get_file_content
+  get_file_content,
+  add_missing_imports,
+  check_core_functionality
 )
 from util.Logger import (
   Logger,
@@ -130,10 +132,14 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
           filename="snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py",
           mode="a"
         )
-      if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 40):
-        Log.content("  - Empty solution found. Repeat process...\n")
+      # Resampling if empty file/solution or missing core functions
+      if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 40) or check_core_functionality(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
+        Log.content("  - Empty solution or missing functionality. Repeat process...\n")
         loop -= 1
         continue
+      # add missing imports
+      if add_missing_imports(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
+        Log.content("  - Added missing imports\n")
   #TODO FUTURE WORK: Automatically merge created Python files into one file
 
 ###########################################################################

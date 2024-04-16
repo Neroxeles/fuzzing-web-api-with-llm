@@ -36,6 +36,29 @@ def load_dict_from_file(filepath: str) -> dict:
     data = json.load(f)
   return data
 
+def add_missing_imports(filepath: str) -> bool:
+  common_packages = ["random", "re", "string"]
+  changes = False
+  with open(filepath, "r") as f:
+    data = f.read()
+    for common_package in common_packages:
+      if (common_package in data) and not (f"import {common_package}" in data):
+        data = f"import {common_package}\n{data}"
+        changes = True
+  if changes:
+    with open(filepath, "w") as f:
+      f.write(data)
+  return changes
+
+def check_core_functionality(filepath: str) -> bool:
+  missing = True
+  with open(filepath, "r") as f:
+    data = f.read()
+    if "get_dict_with_random_values" in data:
+      missing = False
+  return missing
+
+
 ###########################################################################
 # Checksum
 ###########################################################################
