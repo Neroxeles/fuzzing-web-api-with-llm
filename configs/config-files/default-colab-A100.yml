@@ -37,7 +37,7 @@ model:
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # float values
-  temperature: 0.2
+  temperature: 0.4
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
   # set 0 to deactivate
@@ -66,6 +66,6 @@ phase-ii:
   # should phase II be executed?
   execute: true
   # path to the prompt template
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v4.md"
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v5.md"
   # How often should the process be carried out per property?
   loops: 5
