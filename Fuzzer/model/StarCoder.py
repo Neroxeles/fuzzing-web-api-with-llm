@@ -164,7 +164,7 @@ class StarCoder:
       mode="w"
     )
     # Define all possible sequences that point to an end of sequence
-    self.eos = ["<|endoftext|>"]
+    self.eos = ["<|endoftext|>", "```"]
 
   @torch.inference_mode()
   def generate(self, temperature: float = 1.0, batch_size: int = 1, max_length: int = 512) -> tuple[list[str], int]:
