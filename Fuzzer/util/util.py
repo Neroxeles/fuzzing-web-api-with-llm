@@ -42,7 +42,7 @@ def add_missing_imports(filepath: str) -> bool:
   with open(filepath, "r") as f:
     data = f.read()
     for common_package in common_packages:
-      if (common_package in data) and not (f"import {common_package}" in data):
+      if (f"{common_package}." in data) and not (f"import {common_package}" in data):
         data = f"import {common_package}\n{data}"
         changes = True
   if changes:

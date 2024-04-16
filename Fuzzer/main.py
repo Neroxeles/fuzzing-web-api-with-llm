@@ -130,7 +130,7 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
           content=output.split("```")[0],
           directory=generated_code_dir,
           filename="snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py",
-          mode="a"
+          mode="w"
         )
       # Resampling if empty file/solution or missing core functions
       if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 40) or check_core_functionality(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
