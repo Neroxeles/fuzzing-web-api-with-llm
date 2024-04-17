@@ -109,16 +109,21 @@ class StarCoder:
     self.do_sample = do_sample
     self.top_p = top_p
 
-    # config = AutoConfig.from_pretrained(checkpoint)
-    # with init_empty_weights():
-    #   empty_model = AutoModelForCausalLM.from_config(config)
-    # empty_model.tie_weights()
-    # device_map = infer_auto_device_map(empty_model, no_split_module_classes=["OPTDecoderLayer"], dtype="bfloat16")
-    # write_dict_to_file(
-    #   device_map,
-    #   directory="/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output",
-    #   filename="device_map.json"
-    # )
+    config = AutoConfig.from_pretrained(checkpoint)
+    with init_empty_weights():
+      empty_model = AutoModelForCausalLM.from_config(config)
+    empty_model.tie_weights()
+    device_map = infer_auto_device_map(
+      empty_model,
+      no_split_module_classes=["OPTDecoderLayer"],
+      dtype="bfloat16",
+      max_memory={0: "14GB", "cpu": "50GB"}
+    )
+    write_dict_to_file(
+      device_map,
+      directory="device-maps",
+      filename="device_map.json"
+    )
 
     device_map = load_dict_from_file(device_map_path)
     kwargs = {}
@@ -144,8 +149,6 @@ class StarCoder:
       )
     )
 
-    # self.model.save_pretrained("/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/saved_models/model")
-    # self.tokenizer.save_pretrained("/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/saved_models/tokenizer")
     self.eos = []
     self.input_str = ""
 
