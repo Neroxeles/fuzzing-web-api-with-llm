@@ -115,7 +115,7 @@ class StarCoder:
     empty_model.tie_weights()
     device_map = infer_auto_device_map(
       empty_model,
-      no_split_module_classes=["OPTDecoderLayer"],
+      no_split_module_classes=["Block"],
       dtype="bfloat16",
       max_memory={0: "14GB", "cpu": "50GB"}
     )
