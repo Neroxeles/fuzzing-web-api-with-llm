@@ -9,7 +9,7 @@ from accelerate import (
 )
 from transformers import (
   AutoConfig,
-  AutoModelForCausalLM, GPTBigCodeForCausalLM,
+  AutoModelForCausalLM, LlamaForCausalLM,
   AutoTokenizer,
   PreTrainedTokenizer,
   PreTrainedTokenizerFast,
@@ -78,14 +78,14 @@ class EndOfFunctionCriteria(StoppingCriteria):
         # (i.e., contains at least one stop string).
         return all(done)
 
-class StarCoder:
+class CodeLlama2:
   def __init__(
       self,
       logger: Logger,
       device_map_path: str,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
-      checkpoint: str = "bigcode/starcoder",
+      checkpoint: str = "codellama/CodeLlama-34b-Python-hf",
       cache_dir:str = None,
       device: str = "cuda",
       batch_size: int = 1,
@@ -94,7 +94,7 @@ class StarCoder:
       top_p: float = 0,
       do_sample: bool = True
     ) -> None:
-    """Initialize the StarCoder model"""
+    """Initialize the CodeLlama2 model"""
     login()
     self.log = logger
     self.device = device
@@ -133,9 +133,8 @@ class StarCoder:
       kwargs['cache_dir'] = cache_dir
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-    # In FP32 the model requires more than 60GB of RAM, you can load it in FP16 or BF16 in ~30GB, or in 8bit in ~16GB of RAM
     self.model = (
-      GPTBigCodeForCausalLM.from_pretrained(
+      LlamaForCausalLM.from_pretrained(
         checkpoint,
         device_map=device_map,
         offload_folder=offload_folder,
@@ -174,7 +173,7 @@ class StarCoder:
     self.eos = ["<|endoftext|>", "```"]
 
   @torch.inference_mode()
-  def generate(self, temperature: float = 1.0, batch_size: int = 1, max_length: int = 512) -> tuple[list[str], int]:
+  def generate(self) -> tuple[list[str], int]:
     """Generates Output (e.g. Python Code)"""
     start = timer()
     #TODO experiment with padding and truncation strategies
@@ -231,7 +230,7 @@ class StarCoder:
 
 def instantiate_model(config: dict[str, any], logger: Logger) -> StarCoder:
   """Returns an instance of the StarCoder model"""
-  model_obj = StarCoder(
+  model_obj = CodeLlama2(
     checkpoint=config['checkpoint'],
     device=config['device'],
     device_map_path=config['device-map'],
