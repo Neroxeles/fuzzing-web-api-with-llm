@@ -14,7 +14,8 @@ from transformers import (
   PreTrainedTokenizer,
   PreTrainedTokenizerFast,
   StoppingCriteria,
-  StoppingCriteriaList
+  StoppingCriteriaList,
+  BitsAndBytesConfig
 )
 from timeit import default_timer as timer
 from util.util import (
@@ -119,6 +120,7 @@ class StarCoder:
     # )
 
     device_map = load_dict_from_file(device_map_path)
+    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     # In FP32 the model requires more than 60GB of RAM, you can load it in FP16 or BF16 in ~30GB, or in 8bit in ~15GB of RAM
@@ -130,7 +132,8 @@ class StarCoder:
         offload_folder=offload_folder,
         offload_state_dict=True,
         # torch_dtype=torch.bfloat16,
-        load_in_8bit=True
+        # load_in_8bit=True,
+        quantization_config=quantization_config
         # local_files_only=True
       )
     )
