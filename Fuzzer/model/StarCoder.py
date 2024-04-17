@@ -91,7 +91,7 @@ class StarCoder:
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
       checkpoint: str = "bigcode/starcoder",
-      cache_dir:str = "/.cache/huggingface/hub",
+      cache_dir:str = None,
       device: str = "cuda",
       batch_size: int = 1,
       temperature: float = 1,
@@ -129,12 +129,14 @@ class StarCoder:
     else:
       kwargs['torch_dtype'] = torch.bfloat16
 
+    if cache_dir:
+      kwargs['cache_dir'] = cache_dir
+
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-    # In FP32 the model requires more than 60GB of RAM, you can load it in FP16 or BF16 in ~30GB, or in 8bit in ~15GB of RAM
+    # In FP32 the model requires more than 60GB of RAM, you can load it in FP16 or BF16 in ~30GB, or in 8bit in ~16GB of RAM
     self.model = (
       GPTBigCodeForCausalLM.from_pretrained(
         checkpoint,
-        cache_dir=cache_dir,
         device_map=device_map,
         offload_folder=offload_folder,
         offload_state_dict=True,

@@ -17,8 +17,9 @@ model:
   # bigcode/starcoderbase-1b with torch.bfloat16 -> 2666 MB.
   # bigcode/starcoderbase with torch.bfloat16 -> ~32 GB.
   checkpoint: "bigcode/starcoder"
-  # Set cache directory on Google Drive
+  # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
+  # leave empty for default
   cache-dir: "/content/drive/MyDrive/models"
   # choose one of the following devices
   # - cpu (not implemented)
