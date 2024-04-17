@@ -89,6 +89,7 @@ class StarCoder:
       logger: Logger,
       device_map_path: str,
       offload_folder: str = "offload",
+      load_in: str = "bfloat16",
       checkpoint: str = "bigcode/starcoder",
       cache_dir:str = "/.cache/huggingface/hub",
       device: str = "cuda",
@@ -120,7 +121,13 @@ class StarCoder:
     # )
 
     device_map = load_dict_from_file(device_map_path)
-    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+    kwargs = {}
+
+    if load_in == "8bit":
+      quantization_config = BitsAndBytesConfig(load_in_8bit=True,llm_int8_threshold=200.0)
+      kwargs['quantization_config'] = quantization_config
+    else:
+      kwargs['torch_dtype'] = torch.bfloat16
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     # In FP32 the model requires more than 60GB of RAM, you can load it in FP16 or BF16 in ~30GB, or in 8bit in ~15GB of RAM
@@ -131,10 +138,7 @@ class StarCoder:
         device_map=device_map,
         offload_folder=offload_folder,
         offload_state_dict=True,
-        # torch_dtype=torch.bfloat16,
-        # load_in_8bit=True,
-        quantization_config=quantization_config
-        # local_files_only=True
+        **kwargs
       )
     )
 
@@ -238,6 +242,7 @@ def instantiate_model(config: dict[str, any], logger: Logger) -> StarCoder:
     top_k=config['top-k'],
     top_p=config['top-p'],
     do_sample=config['do-sample'],
-    cache_dir=config['cache-dir']
+    cache_dir=config['cache-dir'],
+    load_in=config['load-in']
   )
   return model_obj
