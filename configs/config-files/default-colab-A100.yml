@@ -23,7 +23,7 @@ model:
   cache-dir: "/content/drive/MyDrive/models"
   # choose one of the following devices
   # - cpu (not implemented)
-  # - cuda (not used because of device_map)
+  # - cuda
   device: "cuda"
   # choose a fitting device_map
   device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoder/device_map-colab-A100.json"
