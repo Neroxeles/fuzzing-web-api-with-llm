@@ -124,7 +124,7 @@ class StarCoder:
     kwargs = {}
 
     if load_in == "8bit":
-      quantization_config = BitsAndBytesConfig(load_in_8bit=True,llm_int8_threshold=200.0)
+      quantization_config = BitsAndBytesConfig(load_in_8bit=True,llm_int8_threshold=5.0)
       kwargs['quantization_config'] = quantization_config
     else:
       kwargs['torch_dtype'] = torch.bfloat16
