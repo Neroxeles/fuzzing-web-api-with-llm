@@ -147,7 +147,7 @@ class CodeLlama2:
     self.input_str = ""
 
   def apply_template(self, template_path: str, property: dict, generated_prompts_dir: str, save_file_name: str) -> None:
-    """Build input string for the StarCoder generator"""
+    """Build input string for the CodeLlama2 generator"""
     # Create input string for the template
     parameters = ""
     for item in property['items']:
@@ -228,8 +228,8 @@ class CodeLlama2:
     self.log.content(f"  - Execution time = {end - start} seconds\n")
     return outputs, len(gen_seqs[0])
 
-def instantiate_model(config: dict[str, any], logger: Logger) -> StarCoder:
-  """Returns an instance of the StarCoder model"""
+def instantiate_model(config: dict[str, any], logger: Logger) -> CodeLlama2:
+  """Returns an instance of the CodeLlama2 model"""
   model_obj = CodeLlama2(
     checkpoint=config['checkpoint'],
     device=config['device'],
