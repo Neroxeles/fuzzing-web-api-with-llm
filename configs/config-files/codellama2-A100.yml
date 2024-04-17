@@ -12,7 +12,7 @@ model:
   # - codellama/CodeLlama-7b-Python-hf
   # - codellama/CodeLlama-34b-Python-hf
   # - codellama/CodeLlama-70b-Python-hf
-  checkpoint: "codellama/CodeLlama-7b-Python-hf"
+  checkpoint: "codellama/CodeLlama-34b-Python-hf"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
@@ -26,7 +26,7 @@ model:
   # load in
   # - bfloat16
   # - 8bit
-  load-in: "bfloat16"
+  load-in: "8bit"
   # define offload_folder
   offload-folder: "offload"
   # do not change
