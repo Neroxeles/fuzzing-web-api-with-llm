@@ -30,7 +30,7 @@ model:
   # load in
   # - bfloat16
   # - 8bit
-  load-in: "8bit"
+  load-in: "bfloat16"
   # define offload_folder
   offload-folder: "offload"
   # do not change
