@@ -121,7 +121,7 @@ class StarCoder:
     )
     write_dict_to_file(
       device_map,
-      directory="device-maps",
+      directory="configs",
       filename="device_map.json"
     )
 
