@@ -26,7 +26,7 @@ model:
   # - cuda (not used because of device_map)
   device: "cuda"
   # choose a fitting device_map
-  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoder/device_map-colab-A100.json"
+  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoder/device_map-colab-V100.json"
   # load in
   # - bfloat16
   # - 8bit
