@@ -2,8 +2,11 @@ import os, sys
 from datetime import datetime
 import torch
 from model.StarCoder import (
-  Phase,
   StarCoder,
+  # instantiate_model
+)
+from model.CodeLlama2 import (
+  CodeLlama2,
   instantiate_model
 )
 import re
@@ -58,7 +61,7 @@ def generate_properties(config: dict[str, any]) -> None:
 ###########################################################################
 # PHASE II - Generate Type Generators
 ###########################################################################
-def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
+def generate_type_generators(model: StarCoder | CodeLlama2, config: dict[str, any]) -> None:
   """Phase II - Generate Type Generators"""
   # setup output dirs
   generated_code_dir: str = config['output-dir'] + "/generated-code"
@@ -214,7 +217,7 @@ if __name__ == "__main__":
         Log.content(f"  \"{key}\": \"{config_model[key]}\",\n")
       Log.content("}\n```\n")
       start = timer()
-      starcoder_model = instantiate_model(config=config_model, logger= Log)
+      model = instantiate_model(config=config_model, logger=Log)
       end = timer()
       Log.content("## Execution time\n")
       Log.content(f"- start = {start}\n")
@@ -228,7 +231,7 @@ if __name__ == "__main__":
       # generate content
       Log.content("# Phase II\n")
       config_phase_ii.update(config_general)
-      generate_type_generators(model=starcoder_model, config=config_phase_ii)
+      generate_type_generators(model=model, config=config_phase_ii)
     #TODO execute PHASE III
   except Exception as error:
     Log.content("# Exception during execution\n")
@@ -237,7 +240,7 @@ if __name__ == "__main__":
     Log.content("# Process is terminated\n")
     try:
       Log.content("Free memory\n")
-      del starcoder_model
+      del model
       torch.cuda.empty_cache()
     except Exception as error:
       Log.content("## Free memory exception\n")

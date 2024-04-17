@@ -9,28 +9,23 @@ general:
 model:
   # see also https://huggingface.co/blog/how-to-generate
   # choose one of the following possible LLM model checkpoints
-  # - bigcode/starcoderbase-1b
-  # - bigcode/starcoderbase
-  # - bigcode/starcoder (recommended)
-  # see https://huggingface.co/collections/bigcode/%E2%AD%90-starcoder-64f9bd5740eb5daaeb81dbec for more
-  # and for StarCoder2 see https://huggingface.co/collections/bigcode/starcoder2-65de6da6e87db3383572be1a
-  # bigcode/starcoderbase-1b with torch.bfloat16 -> 2666 MB.
-  # bigcode/starcoderbase with torch.bfloat16 -> ~32 GB.
-  checkpoint: "bigcode/starcoder"
+  # - codellama/CodeLlama-34b-Python-hf
+  # - codellama/CodeLlama-70b-Python-hf
+  checkpoint: "codellama/CodeLlama-70b-Python-hf"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: "/content/drive/MyDrive/models"
+  cache-dir: 
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda
   device: "cuda"
   # choose a fitting device_map
-  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoder/device_map-colab-A100.json"
+  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/codellama2-70b/device_map-A100.json"
   # load in
   # - bfloat16
   # - 8bit
-  load-in: "bfloat16"
+  load-in: "8bit"
   # define offload_folder
   offload-folder: "offload"
   # do not change
@@ -42,7 +37,7 @@ model:
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # float values
-  temperature: 0.5
+  temperature: 0.7
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
   # set 0 to deactivate
