@@ -129,8 +129,8 @@ class StarCoder:
         device_map=device_map,
         offload_folder=offload_folder,
         offload_state_dict=True,
-        torch_dtype=torch.bfloat16,
-        # load_in_8bit=True
+        # torch_dtype=torch.bfloat16,
+        load_in_8bit=True
         # local_files_only=True
       )
     )
