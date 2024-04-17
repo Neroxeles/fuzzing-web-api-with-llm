@@ -4,7 +4,7 @@ general:
   # the directory that contains all produced files
   output-dir: "/content/fuzzing-web-api-with-llm/output"
   # path to the OpenAPI specification
-  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v4.yml"
+  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v5.yml"
 
 model:
   # see also https://huggingface.co/blog/how-to-generate
@@ -71,6 +71,6 @@ phase-ii:
   # should phase II be executed?
   execute: true
   # path to the prompt template
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v6.md"
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v7.md"
   # How often should the process be carried out per property?
   loops: 5
