@@ -228,7 +228,7 @@ class CodeLlama2:
     self.log.content(f"  - Execution time = {end - start} seconds\n")
     return outputs, len(gen_seqs[0])
 
-def instantiate_model(config: dict[str, any], logger: Logger) -> CodeLlama2:
+def instantiate_code_llama_2(config: dict[str, any], logger: Logger) -> CodeLlama2:
   """Returns an instance of the CodeLlama2 model"""
   model_obj = CodeLlama2(
     checkpoint=config['checkpoint'],

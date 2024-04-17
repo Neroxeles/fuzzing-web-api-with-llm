@@ -1,12 +1,8 @@
 import os, sys
 from datetime import datetime
 import torch
-from model.StarCoder import (
-  StarCoder,
-  # instantiate_model
-)
-from model.CodeLlama2 import (
-  CodeLlama2,
+from model.Universal import (
+  Model,
   instantiate_model
 )
 import re
@@ -61,7 +57,7 @@ def generate_properties(config: dict[str, any]) -> None:
 ###########################################################################
 # PHASE II - Generate Type Generators
 ###########################################################################
-def generate_type_generators(model: StarCoder | CodeLlama2, config: dict[str, any]) -> None:
+def generate_type_generators(model: Model, config: dict[str, any]) -> None:
   """Phase II - Generate Type Generators"""
   # setup output dirs
   generated_code_dir: str = config['output-dir'] + "/generated-code"
@@ -218,6 +214,9 @@ if __name__ == "__main__":
       Log.content("}\n```\n")
       start = timer()
       model = instantiate_model(config=config_model, logger=Log)
+      if model == None:
+        Log.content("- Model not loaded... exit")
+        exit(0)
       end = timer()
       Log.content("## Execution time\n")
       Log.content(f"- start = {start}\n")
