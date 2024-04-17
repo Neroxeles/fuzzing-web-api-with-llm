@@ -121,7 +121,7 @@ class StarCoder:
     )
     write_dict_to_file(
       device_map,
-      directory="configs",
+      directory="/content/fuzzing-web-api-with-llm/configs",
       filename="device_map.json"
     )
 
