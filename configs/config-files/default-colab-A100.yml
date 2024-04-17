@@ -37,7 +37,7 @@ model:
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # float values
-  temperature: 0.4
+  temperature: 0.5
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
   # set 0 to deactivate
