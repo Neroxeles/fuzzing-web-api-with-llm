@@ -1,16 +1,13 @@
 import os, sys
 from datetime import datetime
 import torch
-from model.StarCoder import (
-  Phase,
-  StarCoder,
+from model.ModelForCausalLM import (
+  Model,
   instantiate_model
 )
-import re
 from timeit import default_timer as timer
 from util.util import (
   load_yml_file,
-  write_yml_file,
   write_str_into_file,
   print_gpu_utilization,
   md5,
@@ -24,7 +21,6 @@ from util.Logger import (
   Logger,
   make_logger
 )
-# import util.testApi as testApi
 from util.codegenApi import generate_client_script
 Log: Logger
 
@@ -58,7 +54,7 @@ def generate_properties(config: dict[str, any]) -> None:
 ###########################################################################
 # PHASE II - Generate Type Generators
 ###########################################################################
-def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
+def generate_type_generators(model: Model, config: dict[str, any]) -> None:
   """Phase II - Generate Type Generators"""
   # setup output dirs
   generated_code_dir: str = config['output-dir'] + "/generated-code"
@@ -66,15 +62,7 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
   os.makedirs(generated_code_dir, exist_ok=True)
   os.makedirs(generated_prompts_dir, exist_ok=True)
 
-  # # get all functions from the 'testApi' modul (not used yet)
-  # func_list = []
-  # for func in dir(testApi):
-  #   if "api_" in func:
-  #     func_list.append(func)
-  # # Define all possible sequences that point to an empty solution (not used yet)
-  # empty_solutions = ["pass", "insert code here", "# Solution here"]
-
-  # load OAS and get properties
+  # load OAS and get necessary properties
   oas_complete = load_yml_file(filepath=config['oas-file'])
   properties = []
   for path in oas_complete['paths']:
@@ -103,7 +91,7 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
           })
       except:
         pass
-      # append if parameters exists
+      # append if property has parameters
       if prop["items"]:
         properties.append(prop)
 
@@ -122,25 +110,26 @@ def generate_type_generators(model: StarCoder, config: dict[str, any]) -> None:
     loop = 0
     while loop < config['loops']:
       loop += 1
-      # Generate Type Generators
+      # Generate Code-Snippets
       Log.content("- Generate content for " + "\"prompt-{:0>{}}".format(counter, 2) + ".md\":\n")
       outputs, output_tokens = model.generate()
       for output in outputs:
+        filename = "snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"
         write_str_into_file(
-          content=output.split("```")[0],
+          content=output,
           directory=generated_code_dir,
-          filename="snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py",
+          filename=filename,
           mode="w"
         )
       # Resampling if empty file/solution or missing core functions
-      if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 40) or check_core_functionality(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
+      if (output_tokens <= 20) or (len(get_file_content(f"{generated_code_dir}/{filename}")) < 40) or check_core_functionality(f"{generated_code_dir}/{filename}"):
         Log.content("  - Empty solution or missing functionality. Repeat process...\n")
         loop -= 1
         continue
       # add missing imports
-      if add_missing_imports(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
+      if add_missing_imports(f"{generated_code_dir}/{filename}"):
         Log.content("  - Added missing imports\n")
-  #TODO FUTURE WORK: Automatically merge created Python files into one file
+  #TODO FUTURE WORK: Automatically merge created Python files into one script
 
 ###########################################################################
 #TODO PHASE III - Testing
@@ -159,7 +148,7 @@ if __name__ == "__main__":
     config_filepath = str(sys.argv[1])
   else:
     print("Please enter the path to a configuration file.")
-    print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/configs/config-files/default-colab.yml\"'")
+    print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/configs/config-files/colab-default.yml\"'")
     exit(0)
   config_dict = load_yml_file(config_filepath)
   config_general: dict[str, any] = config_dict['general']
@@ -214,7 +203,7 @@ if __name__ == "__main__":
         Log.content(f"  \"{key}\": \"{config_model[key]}\",\n")
       Log.content("}\n```\n")
       start = timer()
-      starcoder_model = instantiate_model(config=config_model, logger= Log)
+      model = instantiate_model(config=config_model, logger=Log)
       end = timer()
       Log.content("## Execution time\n")
       Log.content(f"- start = {start}\n")
@@ -228,7 +217,7 @@ if __name__ == "__main__":
       # generate content
       Log.content("# Phase II\n")
       config_phase_ii.update(config_general)
-      generate_type_generators(model=starcoder_model, config=config_phase_ii)
+      generate_type_generators(model=model, config=config_phase_ii)
     #TODO execute PHASE III
   except Exception as error:
     Log.content("# Exception during execution\n")
@@ -237,7 +226,7 @@ if __name__ == "__main__":
     Log.content("# Process is terminated\n")
     try:
       Log.content("Free memory\n")
-      del starcoder_model
+      del model
       torch.cuda.empty_cache()
     except Exception as error:
       Log.content("## Free memory exception\n")

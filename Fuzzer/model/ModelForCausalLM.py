@@ -1,15 +1,8 @@
 import os
 import torch
-import enum
-import re
 
-from accelerate import (
-  infer_auto_device_map,
-  init_empty_weights
-)
 from transformers import (
-  AutoConfig,
-  AutoModelForCausalLM, GPTBigCodeForCausalLM,
+  AutoModelForCausalLM,
   AutoTokenizer,
   PreTrainedTokenizer,
   PreTrainedTokenizerFast,
@@ -21,17 +14,11 @@ from timeit import default_timer as timer
 from util.util import (
   get_file_content,
   write_str_into_file,
-  write_dict_to_file,
   load_dict_from_file
 )
 from util.Logger import Logger
 
 from huggingface_hub import login
-
-class Phase(enum.Enum):
-  PHASE_1 = 1
-  PHASE_2 = 2
-  PHASE_3 = 3
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"  # disable warning
 
@@ -77,20 +64,20 @@ class EndOfFunctionCriteria(StoppingCriteria):
                     ),
                 ]
             )
-          done.append(finished)
-        # Finally, it returns True if all generated sequences contain at least one of the stop strings,
-        # otherwise it returns False. The done list keeps track of whether each generation is finished
-        # (i.e., contains at least one stop string).
-        return all(done)
+      done.append(finished)
+    # Finally, it returns True if all generated sequences contain at least one of the stop strings,
+    # otherwise it returns False. The done list keeps track of whether each generation is finished
+    # (i.e., contains at least one stop string).
+    return all(done)
 
-class StarCoder:
+class Model:
   def __init__(
       self,
       logger: Logger,
       device_map_path: str,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
-      checkpoint: str = "bigcode/starcoder",
+      checkpoint: str = "bigcode/starcoder2-15b",
       cache_dir:str = None,
       device: str = "cuda",
       batch_size: int = 1,
@@ -99,7 +86,7 @@ class StarCoder:
       top_p: float = 0,
       do_sample: bool = True
     ) -> None:
-    """Initialize the StarCoder model"""
+    """Initialize any model for causal LMs"""
     login()
     self.log = logger
     self.device = device
@@ -109,27 +96,14 @@ class StarCoder:
     self.do_sample = do_sample
     self.top_p = top_p
 
-    # config = AutoConfig.from_pretrained(checkpoint)
-    # with init_empty_weights():
-    #   empty_model = AutoModelForCausalLM.from_config(config)
-    # empty_model.tie_weights()
-    # device_map = infer_auto_device_map(
-    #   empty_model,
-    #   no_split_module_classes=["Block"],
-    #   dtype="bfloat16",
-    #   max_memory={0: "14GB", "cpu": "50GB"}
-    # )
-    # write_dict_to_file(
-    #   device_map,
-    #   directory="/content/fuzzing-web-api-with-llm/configs",
-    #   filename="device_map.json"
-    # )
-
     device_map = load_dict_from_file(device_map_path)
     kwargs = {}
 
-    if load_in == "8bit":
-      quantization_config = BitsAndBytesConfig(load_in_8bit=True,llm_int8_threshold=5.0)
+    if load_in == "4bit":
+      quantization_config = BitsAndBytesConfig(load_in_4bit=True)
+      kwargs['quantization_config'] = quantization_config
+    elif load_in == "8bit":
+      quantization_config = BitsAndBytesConfig(load_in_8bit=True)
       kwargs['quantization_config'] = quantization_config
     else:
       kwargs['torch_dtype'] = torch.bfloat16
@@ -138,9 +112,8 @@ class StarCoder:
       kwargs['cache_dir'] = cache_dir
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-    # In FP32 the model requires more than 60GB of RAM, you can load it in FP16 or BF16 in ~30GB, or in 8bit in ~16GB of RAM
     self.model = (
-      GPTBigCodeForCausalLM.from_pretrained(
+      AutoModelForCausalLM.from_pretrained(
         checkpoint,
         device_map=device_map,
         offload_folder=offload_folder,
@@ -153,7 +126,7 @@ class StarCoder:
     self.input_str = ""
 
   def apply_template(self, template_path: str, property: dict, generated_prompts_dir: str, save_file_name: str) -> None:
-    """Build input string for the StarCoder generator"""
+    """Build input string for the LLM generator"""
     # Create input string for the template
     parameters = ""
     for item in property['items']:
@@ -179,8 +152,8 @@ class StarCoder:
     self.eos = ["<|endoftext|>", "```"]
 
   @torch.inference_mode()
-  def generate(self, temperature: float = 1.0, batch_size: int = 1, max_length: int = 512) -> tuple[list[str], int]:
-    """Generates Output (e.g. Python Code)"""
+  def generate(self) -> tuple[list[str], int]:
+    """Generates Output (e.g. Python Code-Snippets)"""
     start = timer()
     #TODO experiment with padding and truncation strategies
     # Converts a string to a sequence of ids (integer), using the tokenizer and vocabulary.
@@ -192,6 +165,7 @@ class StarCoder:
     ).to(self.device)
     self.log.content(f"  - Number of Input Tokens = {len(input_tokens[0])}\n")
 
+    # Define the criteria for when the generator should stop
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
         start_length=len(input_tokens[0]),
@@ -203,7 +177,6 @@ class StarCoder:
     raw_outputs = self.model.generate(
       input_tokens,
       max_new_tokens = 512,
-      # max_length=min(2048, len(input_tokens[0]) + 512),
       do_sample=self.do_sample,
       top_p=self.top_p,
       top_k=self.top_k,
@@ -233,10 +206,10 @@ class StarCoder:
     self.log.content(f"  - Number of Output Tokens = {len(gen_seqs[0])}\n")
     self.log.content(f"  - Execution time = {end - start} seconds\n")
     return outputs, len(gen_seqs[0])
-
-def instantiate_model(config: dict[str, any], logger: Logger) -> StarCoder:
-  """Returns an instance of the StarCoder model"""
-  model_obj = StarCoder(
+  
+def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
+  """Returns an instance of the model"""
+  model_obj = Model(
     checkpoint=config['checkpoint'],
     device=config['device'],
     device_map_path=config['device-map'],

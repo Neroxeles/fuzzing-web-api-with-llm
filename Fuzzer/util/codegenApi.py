@@ -1,7 +1,6 @@
 import requests
 import json
 import zipfile
-import os
 
 def generate_client_script(base_url: str, language: str, spec: dict, output: str, verify: bool = True) -> None:
   url = base_url + f"generate"
