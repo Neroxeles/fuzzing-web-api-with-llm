@@ -2,6 +2,7 @@ import os
 import yaml
 from pynvml import *
 import json
+import hashlib
 
 ###########################################################################
 # Write & read files
@@ -34,6 +35,52 @@ def load_dict_from_file(filepath: str) -> dict:
   with open(filepath, "r") as f:
     data = json.load(f)
   return data
+
+def add_missing_imports(filepath: str) -> bool:
+  common_packages = ["random", "re", "string"]
+  changes = False
+  with open(filepath, "r") as f:
+    data = f.read()
+    for common_package in common_packages:
+      if (f"{common_package}." in data) and not (f"import {common_package}" in data):
+        data = f"import {common_package}\n{data}"
+        changes = True
+  if changes:
+    with open(filepath, "w") as f:
+      f.write(data)
+  return changes
+
+def check_core_functionality(filepath: str) -> bool:
+  missing = True
+  with open(filepath, "r") as f:
+    data = f.read()
+    if "get_dict_with_random_values" in data:
+      missing = False
+  return missing
+
+
+###########################################################################
+# Checksum
+###########################################################################
+
+def md5(filepath: str) -> str:
+  hash_md5 = hashlib.md5()
+  with open(filepath, "rb") as f:
+    for chunk in iter(lambda: f.read(4096), b""):
+      hash_md5.update(chunk)
+  return hash_md5.hexdigest()
+
+def save_md5(filepath: str, checksum: str) -> None:
+  with open(filepath, "r") as f:
+    data = f.readlines()
+  for idx, line in enumerate(data):
+    if "oas-checksum" in line:
+      data[idx] = f"  oas-checksum: \"{checksum}\"\n"
+  with open(filepath, "w") as f:
+    f.writelines(data)
+
+def dir_exists(filepath: str) -> bool:
+  return os.path.isdir(filepath)
 
 ###########################################################################
 # GPU stats

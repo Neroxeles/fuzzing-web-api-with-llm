@@ -1,0 +1,76 @@
+general:
+  # choose a fitting name for the current test run
+  name: "Demo"
+  # the directory that contains all produced files
+  output-dir: "/content/fuzzing-web-api-with-llm/output"
+  # path to the OpenAPI specification
+  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v5.yml"
+
+model:
+  # see also https://huggingface.co/blog/how-to-generate
+  # choose one of the following possible LLM model checkpoints
+  # - bigcode/starcoderbase-1b
+  # - bigcode/starcoderbase
+  # - bigcode/starcoder (recommended)
+  # see https://huggingface.co/collections/bigcode/%E2%AD%90-starcoder-64f9bd5740eb5daaeb81dbec for more
+  # and for StarCoder2 see https://huggingface.co/collections/bigcode/starcoder2-65de6da6e87db3383572be1a
+  # bigcode/starcoderbase-1b with torch.bfloat16 -> 2666 MB.
+  # bigcode/starcoderbase with torch.bfloat16 -> ~32 GB.
+  checkpoint: "bigcode/starcoder"
+  # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
+  # default is "/.cache/huggingface/hub"
+  # leave empty for default
+  cache-dir: "/content/drive/MyDrive/models"
+  # choose one of the following devices
+  # - cpu (not implemented)
+  # - cuda
+  device: "cuda"
+  # choose a fitting device_map
+  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoder/device_map-colab-A100.json"
+  # load in
+  # - bfloat16
+  # - 8bit
+  load-in: "bfloat16"
+  # define offload_folder
+  offload-folder: "offload"
+  # do not change
+  # int values
+  batch-size: 1
+  # sampling means randomly picking the next word
+  # bool values
+  do-sample: true
+  # A higher temperature value leads to a more random output,
+  # while a lower value makes the output more deterministic
+  # float values
+  temperature: 0.5
+  # top-k sampling limits the selection of the model to the k
+  # most probable tokens at each step of the output generation
+  # set 0 to deactivate
+  # int values
+  top-k: 0
+  # Instead of sampling only from the most likely K words, in Top-p
+  # sampling chooses from the smallest possible set of words whose
+  # cumulative probability exceeds the probability p
+  # activate Top-p sampling by setting 0 < top_p < 1
+  # float values
+  top-p: 1
+
+phase-i:
+  # should phase I be executed?
+  execute: false
+  # md5 hash of the oas to detect changes. If there are no changes to the oas,
+  # phase i should not be carried out. This value is generated automatically.
+  oas-checksum: ""
+  # Define the base url for the swagger codegen api
+  # see also https://generator3.swagger.io/index.html
+  base-url: "https://generator3.swagger.io/api/"
+  # is set to False if a self-signed certificate is used
+  verify: false
+
+phase-ii:
+  # should phase II be executed?
+  execute: true
+  # path to the prompt template
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v7.md"
+  # How often should the process be carried out per property?
+  loops: 5
