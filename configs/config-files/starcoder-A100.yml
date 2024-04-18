@@ -16,7 +16,7 @@ model:
   # and for StarCoder2 see https://huggingface.co/collections/bigcode/starcoder2-65de6da6e87db3383572be1a
   # bigcode/starcoderbase-1b with torch.bfloat16 -> 2666 MB.
   # bigcode/starcoderbase with torch.bfloat16 -> ~32 GB.
-  checkpoint: "bigcode/starcoder"
+  checkpoint: "bigcode/starcoder2-15b"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
@@ -26,7 +26,7 @@ model:
   # - cuda
   device: "cuda"
   # choose a fitting device_map
-  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoder/device_map-colab-A100.json"
+  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoderbase-1b/device_map-local.json"
   # load in
   # - bfloat16
   # - 8bit

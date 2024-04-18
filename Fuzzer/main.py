@@ -23,7 +23,6 @@ from util.Logger import (
   Logger,
   make_logger
 )
-# import util.testApi as testApi
 from util.codegenApi import generate_client_script
 Log: Logger
 
@@ -64,14 +63,6 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
   generated_prompts_dir: str = config['output-dir'] + "/generated-prompts"
   os.makedirs(generated_code_dir, exist_ok=True)
   os.makedirs(generated_prompts_dir, exist_ok=True)
-
-  # # get all functions from the 'testApi' modul (not used yet)
-  # func_list = []
-  # for func in dir(testApi):
-  #   if "api_" in func:
-  #     func_list.append(func)
-  # # Define all possible sequences that point to an empty solution (not used yet)
-  # empty_solutions = ["pass", "insert code here", "# Solution here"]
 
   # load OAS and get properties
   oas_complete = load_yml_file(filepath=config['oas-file'])

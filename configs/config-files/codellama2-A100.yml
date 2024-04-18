@@ -10,13 +10,13 @@ model:
   # see also https://huggingface.co/blog/how-to-generate
   # choose one of the following possible LLM model checkpoints
   # - codellama/CodeLlama-7b-Python-hf
-  # - codellama/CodeLlama-34b-Python-hf
-  # - codellama/CodeLlama-70b-Python-hf
+  # - codellama/CodeLlama-34b-Python-hf (must be loaded in 8bit)
+  # - codellama/CodeLlama-70b-Python-hf (cannot be loaded even in 8bit mode)
   checkpoint: "codellama/CodeLlama-34b-Python-hf"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: 
+  cache-dir: "/content/drive/MyDrive/models"
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda

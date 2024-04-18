@@ -85,7 +85,7 @@ class Model:
       device_map_path: str,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
-      checkpoint: str = "bigcode/starcoder",
+      checkpoint: str = "codellama/CodeLlama-7b-Python-hf",
       cache_dir:str = None,
       device: str = "cuda",
       batch_size: int = 1,
