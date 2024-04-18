@@ -10,7 +10,7 @@ Automatic generation of test cases for web APIs using large language models
 
 !pip install PyYAML torch transformers accelerate nvidia-ml-py3 huggingface_hub
 !pip install --upgrade transformers
-# when loading in 8bit
+# when loading in 8bit/4bit
 !pip install -i https://pypi.org/simple/ bitsandbytes
 
 !rm -r /content/offload
