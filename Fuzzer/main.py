@@ -148,7 +148,7 @@ if __name__ == "__main__":
     config_filepath = str(sys.argv[1])
   else:
     print("Please enter the path to a configuration file.")
-    print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/configs/config-files/default-colab.yml\"'")
+    print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/configs/config-files/colab-default.yml\"'")
     exit(0)
   config_dict = load_yml_file(config_filepath)
   config_general: dict[str, any] = config_dict['general']

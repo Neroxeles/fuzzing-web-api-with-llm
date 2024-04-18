@@ -14,7 +14,7 @@ Automatic generation of test cases for web APIs using large language models
 !pip install -i https://pypi.org/simple/ bitsandbytes
 
 !rm -r /content/offload
-!python3 /content/fuzzing-web-api-with-llm/Fuzzer/main.py "/content/fuzzing-web-api-with-llm/configs/config-files/starcoder-A100.yml"
+!python3 /content/fuzzing-web-api-with-llm/Fuzzer/main.py "/content/fuzzing-web-api-with-llm/configs/config-files/colab-default.yml"
 
 !zip -r /content/file.zip /content/fuzzing-web-api-with-llm/output
 ```
