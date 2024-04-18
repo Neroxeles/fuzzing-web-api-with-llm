@@ -10,6 +10,7 @@ from accelerate import (
 from transformers import (
   AutoConfig,
   AutoModelForCausalLM, LlamaForCausalLM,
+  GPTBigCodeForCausalLM,
   AutoTokenizer,
   PreTrainedTokenizer,
   PreTrainedTokenizerFast,
@@ -134,7 +135,7 @@ class Model:
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
-      AutoModelForCausalLM.from_pretrained(
+      GPTBigCodeForCausalLM.from_pretrained(
         checkpoint,
         device_map=device_map,
         offload_folder=offload_folder,
