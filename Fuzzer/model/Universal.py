@@ -8,9 +8,7 @@ from accelerate import (
   init_empty_weights
 )
 from transformers import (
-  AutoConfig,
-  AutoModelForCausalLM, LlamaForCausalLM,
-  GPTBigCodeForCausalLM,
+  AutoModelForCausalLM,
   AutoTokenizer,
   PreTrainedTokenizer,
   PreTrainedTokenizerFast,
@@ -73,11 +71,11 @@ class EndOfFunctionCriteria(StoppingCriteria):
                     ),
                 ]
             )
-          done.append(finished)
-        # Finally, it returns True if all generated sequences contain at least one of the stop strings,
-        # otherwise it returns False. The done list keeps track of whether each generation is finished
-        # (i.e., contains at least one stop string).
-        return all(done)
+      done.append(finished)
+    # Finally, it returns True if all generated sequences contain at least one of the stop strings,
+    # otherwise it returns False. The done list keeps track of whether each generation is finished
+    # (i.e., contains at least one stop string).
+    return all(done)
 
 class Model:
   def __init__(
@@ -135,7 +133,7 @@ class Model:
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
-      GPTBigCodeForCausalLM.from_pretrained(
+      AutoModelForCausalLM.from_pretrained(
         checkpoint,
         device_map=device_map,
         offload_folder=offload_folder,
