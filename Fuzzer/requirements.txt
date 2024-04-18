@@ -1,6 +1,7 @@
 PyYAML==5.4.1
 torch==2.2.0
-transformers==4.37.2
+transformers==4.40.0
 accelerate==0.28.0
 huggingface_hub==0.20.3
 nvidia-ml-py3==7.352.0
+bitsandbytes==0.43.1

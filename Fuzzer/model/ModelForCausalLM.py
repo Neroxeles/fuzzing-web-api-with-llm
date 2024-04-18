@@ -1,12 +1,6 @@
 import os
 import torch
-import enum
-import re
 
-from accelerate import (
-  infer_auto_device_map,
-  init_empty_weights
-)
 from transformers import (
   AutoModelForCausalLM,
   AutoTokenizer,
@@ -20,7 +14,6 @@ from timeit import default_timer as timer
 from util.util import (
   get_file_content,
   write_str_into_file,
-  write_dict_to_file,
   load_dict_from_file
 )
 from util.Logger import Logger
@@ -84,7 +77,7 @@ class Model:
       device_map_path: str,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
-      checkpoint: str = "codellama/CodeLlama-7b-Python-hf",
+      checkpoint: str = "bigcode/starcoder2-15b",
       cache_dir:str = None,
       device: str = "cuda",
       batch_size: int = 1,
@@ -93,7 +86,7 @@ class Model:
       top_p: float = 0,
       do_sample: bool = True
     ) -> None:
-    """Initialize the CodeLlama2 model"""
+    """Initialize any model for causal LMs"""
     login()
     self.log = logger
     self.device = device
@@ -103,27 +96,14 @@ class Model:
     self.do_sample = do_sample
     self.top_p = top_p
 
-    # config = AutoConfig.from_pretrained(checkpoint)
-    # with init_empty_weights():
-    #   empty_model = AutoModelForCausalLM.from_config(config)
-    # empty_model.tie_weights()
-    # device_map = infer_auto_device_map(
-    #   empty_model,
-    #   no_split_module_classes=["Block"],
-    #   dtype="bfloat16",
-    #   max_memory={0: "14GB", "cpu": "50GB"}
-    # )
-    # write_dict_to_file(
-    #   device_map,
-    #   directory="/content/fuzzing-web-api-with-llm/configs",
-    #   filename="device_map.json"
-    # )
-
     device_map = load_dict_from_file(device_map_path)
     kwargs = {}
 
-    if load_in == "8bit":
-      quantization_config = BitsAndBytesConfig(load_in_8bit=True,llm_int8_threshold=5.0)
+    if load_in == "4bit":
+      quantization_config = BitsAndBytesConfig(load_in_4bit=True)
+      kwargs['quantization_config'] = quantization_config
+    elif load_in == "8bit":
+      quantization_config = BitsAndBytesConfig(load_in_8bit=True)
       kwargs['quantization_config'] = quantization_config
     else:
       kwargs['torch_dtype'] = torch.bfloat16
@@ -146,7 +126,7 @@ class Model:
     self.input_str = ""
 
   def apply_template(self, template_path: str, property: dict, generated_prompts_dir: str, save_file_name: str) -> None:
-    """Build input string for the CodeLlama2 generator"""
+    """Build input string for the LLM generator"""
     # Create input string for the template
     parameters = ""
     for item in property['items']:
@@ -173,7 +153,7 @@ class Model:
 
   @torch.inference_mode()
   def generate(self) -> tuple[list[str], int]:
-    """Generates Output (e.g. Python Code)"""
+    """Generates Output (e.g. Python Code-Snippets)"""
     start = timer()
     #TODO experiment with padding and truncation strategies
     # Converts a string to a sequence of ids (integer), using the tokenizer and vocabulary.
@@ -185,6 +165,7 @@ class Model:
     ).to(self.device)
     self.log.content(f"  - Number of Input Tokens = {len(input_tokens[0])}\n")
 
+    # Define the criteria for when the generator should stop
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
         start_length=len(input_tokens[0]),
@@ -196,7 +177,6 @@ class Model:
     raw_outputs = self.model.generate(
       input_tokens,
       max_new_tokens = 512,
-      # max_length=min(2048, len(input_tokens[0]) + 512),
       do_sample=self.do_sample,
       top_p=self.top_p,
       top_k=self.top_k,
@@ -228,7 +208,7 @@ class Model:
     return outputs, len(gen_seqs[0])
   
 def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
-  """Returns an instance of the CodeLlama2 model"""
+  """Returns an instance of the model"""
   model_obj = Model(
     checkpoint=config['checkpoint'],
     device=config['device'],

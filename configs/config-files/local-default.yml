@@ -2,41 +2,43 @@ general:
   # choose a fitting name for the current test run
   name: "Demo"
   # the directory that contains all produced files
-  output-dir: "/content/fuzzing-web-api-with-llm/output"
+  output-dir: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output"
   # path to the OpenAPI specification
-  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v5.yml"
+  oas-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/swagger_v5.yml"
 
 model:
   # see also https://huggingface.co/blog/how-to-generate
-  # choose one of the following possible LLM model checkpoints
+  # Model can be chosen freely as long as it is a causal LM
+  # following checkpoints were tested:
   # - bigcode/starcoderbase-1b
   # - bigcode/starcoderbase
-  # - bigcode/starcoder (recommended)
-  # see https://huggingface.co/collections/bigcode/%E2%AD%90-starcoder-64f9bd5740eb5daaeb81dbec for more
-  # and for StarCoder2 see https://huggingface.co/collections/bigcode/starcoder2-65de6da6e87db3383572be1a
-  # bigcode/starcoderbase-1b with torch.bfloat16 -> 2666 MB.
-  # bigcode/starcoderbase with torch.bfloat16 -> ~32 GB.
-  checkpoint: "bigcode/starcoder2-15b"
+  # - bigcode/starcoder
+  # - bigcode/starcoder2-3b
+  # - bigcode/starcoder2-15b (recommended)
+  # - codellama/CodeLlama-7b-Python-hf
+  # - codellama/CodeLlama-34b-Python-hf (must be loaded in 8bit)
+  checkpoint: "bigcode/starcoder2-3b"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: "/content/drive/MyDrive/models"
+  cache-dir: 
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda
   device: "cuda"
   # choose a fitting device_map
-  device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/starcoderbase-1b/device_map-local.json"
+  device-map: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/configs/device-maps/gpu-only.json"
   # load in
   # - bfloat16
   # - 8bit
-  load-in: "bfloat16"
+  # - 4bit
+  load-in: "8bit"
   # define offload_folder
   offload-folder: "offload"
   # do not change
   # int values
   batch-size: 1
-  # sampling means randomly picking the next word
+  # activating sampling means randomly picking the next word
   # bool values
   do-sample: true
   # A higher temperature value leads to a more random output,
@@ -57,13 +59,13 @@ model:
 
 phase-i:
   # should phase I be executed?
-  execute: false
+  execute: true
   # md5 hash of the oas to detect changes. If there are no changes to the oas,
   # phase i should not be carried out. This value is generated automatically.
   oas-checksum: ""
-  # Define the base url for the swagger codegen api
+  # define the base url for the swagger codegen api
   # see also https://generator3.swagger.io/index.html
-  base-url: "https://generator3.swagger.io/api/"
+  base-url: "https://codegen.home.lab/api/"
   # is set to False if a self-signed certificate is used
   verify: false
 
@@ -71,6 +73,7 @@ phase-ii:
   # should phase II be executed?
   execute: true
   # path to the prompt template
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v7.md"
-  # How often should the process be carried out per property?
+  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompt_v7.md"
+  # how often should the process be carried out per property?
+  # replaces batch-size
   loops: 5

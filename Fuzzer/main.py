@@ -1,15 +1,13 @@
 import os, sys
 from datetime import datetime
 import torch
-from model.Universal import (
+from model.ModelForCausalLM import (
   Model,
   instantiate_model
 )
-import re
 from timeit import default_timer as timer
 from util.util import (
   load_yml_file,
-  write_yml_file,
   write_str_into_file,
   print_gpu_utilization,
   md5,
@@ -64,7 +62,7 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
   os.makedirs(generated_code_dir, exist_ok=True)
   os.makedirs(generated_prompts_dir, exist_ok=True)
 
-  # load OAS and get properties
+  # load OAS and get necessary properties
   oas_complete = load_yml_file(filepath=config['oas-file'])
   properties = []
   for path in oas_complete['paths']:
@@ -93,7 +91,7 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
           })
       except:
         pass
-      # append if parameters exists
+      # append if property has parameters
       if prop["items"]:
         properties.append(prop)
 
@@ -112,25 +110,26 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
     loop = 0
     while loop < config['loops']:
       loop += 1
-      # Generate Type Generators
+      # Generate Code-Snippets
       Log.content("- Generate content for " + "\"prompt-{:0>{}}".format(counter, 2) + ".md\":\n")
       outputs, output_tokens = model.generate()
       for output in outputs:
+        filename = "snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"
         write_str_into_file(
-          content=output.split("```")[0],
+          content=output,
           directory=generated_code_dir,
-          filename="snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py",
+          filename=filename,
           mode="w"
         )
       # Resampling if empty file/solution or missing core functions
-      if (output_tokens <= 20) or (len(get_file_content(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py")) < 40) or check_core_functionality(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
+      if (output_tokens <= 20) or (len(get_file_content(f"{generated_code_dir}/{filename}")) < 40) or check_core_functionality(f"{generated_code_dir}/{filename}"):
         Log.content("  - Empty solution or missing functionality. Repeat process...\n")
         loop -= 1
         continue
       # add missing imports
-      if add_missing_imports(generated_code_dir+"/snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"):
+      if add_missing_imports(f"{generated_code_dir}/{filename}"):
         Log.content("  - Added missing imports\n")
-  #TODO FUTURE WORK: Automatically merge created Python files into one file
+  #TODO FUTURE WORK: Automatically merge created Python files into one script
 
 ###########################################################################
 #TODO PHASE III - Testing
@@ -205,9 +204,6 @@ if __name__ == "__main__":
       Log.content("}\n```\n")
       start = timer()
       model = instantiate_model(config=config_model, logger=Log)
-      if model == None:
-        Log.content("- Model not loaded... exit")
-        exit(0)
       end = timer()
       Log.content("## Execution time\n")
       Log.content(f"- start = {start}\n")
