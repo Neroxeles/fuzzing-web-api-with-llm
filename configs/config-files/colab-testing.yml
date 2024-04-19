@@ -76,7 +76,7 @@ phase-ii:
   # should phase II be executed?
   execute: true
   # path to the prompt template
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v8.md"
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v7.md"
   # how often should the process be carried out per property?
   # replaces batch-size
   loops: 5

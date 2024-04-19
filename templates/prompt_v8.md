@@ -22,7 +22,7 @@ Quantifiers and Alternation
 - + matches 1 or more of the preceding token.
 - * matches 0 or more of the preceding token.
 - {1,3} matches the specified quantity of the previous token. {1,3} will match 1 to 3. {3} will match exactly 3. {3,} will match 3 or more.
-- ? Matches 0 or 1 of the preceding token, effectively making it optional.
+- ? matches 0 or 1 of the preceding token, effectively making it optional.
 ```
 
 Task:
