@@ -21,7 +21,7 @@ model:
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: "/content/drive/MyDrive/models"
+  cache-dir: "/content/cache"
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda
@@ -59,7 +59,7 @@ model:
 
 phase-i:
   # should phase I be executed?
-  execute: false
+  execute: true
   # md5 hash of the oas to detect changes. If there are no changes to the oas,
   # phase i should not be carried out. This value is generated automatically.
   oas-checksum: ""
