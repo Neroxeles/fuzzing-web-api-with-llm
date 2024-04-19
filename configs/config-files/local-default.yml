@@ -56,6 +56,9 @@ model:
   # activate Top-p sampling by setting 0 < top_p < 1
   # float values
   top-p: 1
+  # maximum number of tokens that can be generated
+  # maxValue depends on the model that is used
+  max-new-tokens: 512
 
 phase-i:
   # should phase I be executed?
