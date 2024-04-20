@@ -21,7 +21,7 @@ model:
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: 
+  cache-dir: "/content/drive/MyDrive/models"
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda
