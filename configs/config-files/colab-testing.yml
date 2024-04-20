@@ -17,11 +17,11 @@ model:
   # - bigcode/starcoder2-15b (recommended)
   # - codellama/CodeLlama-7b-Python-hf
   # - codellama/CodeLlama-34b-Python-hf (must be loaded in 8bit)
-  checkpoint: "codellama/CodeLlama-34b-Python-hf"
+  checkpoint: codellama/CodeLlama-7b-Python-hf
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: "/content/drive/MyDrive/models"
+  cache-dir: 
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda
