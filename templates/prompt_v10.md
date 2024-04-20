@@ -10,6 +10,7 @@ Solution:
 ```python
 import random
 import string
+import datetime
 
 # This functions generates a random value for {animal: {type:string,pattern:'[A-Za-z0-9]{3-20}',example:'Frederike34'}}
 def random_animal() -> str:
