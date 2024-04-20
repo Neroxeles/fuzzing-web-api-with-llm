@@ -17,7 +17,7 @@ model:
   # - bigcode/starcoder2-15b (recommended)
   # - codellama/CodeLlama-7b-Python-hf
   # - codellama/CodeLlama-34b-Python-hf (must be loaded in 8bit)
-  checkpoint: codellama/CodeLlama-7b-Python-hf
+  checkpoint: bigcode/starcoder2-15b
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
@@ -32,7 +32,7 @@ model:
   # - bfloat16
   # - 8bit
   # - 4bit
-  load-in: "8bit"
+  load-in: "bfloat16"
   # define offload_folder
   offload-folder: "offload"
   # do not change
@@ -44,7 +44,7 @@ model:
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # float values
-  temperature: 0.2
+  temperature: 0.01
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
   # set 0 to deactivate
