@@ -84,9 +84,9 @@ def random_telephone() -> int:
   telephone = "+49 " + ''.join(random.choice(characters) for _ in range(length))
   return telephone
 
-# This functions generates a random value for {password: {type:string,pattern:'[.]{8-50}',example:'asdui#+349*~.,/wr'}}
+# This functions generates a random value for {password: {type:string,pattern:'.{8-50}',example:'asdui#+349*~.,/wr'}}
 def random_password() -> int:
-  # The following characters should be used '[.]'
+  # The following characters should be used '.'
   characters = string.ascii_letters + string.digits + string.punctuation
   length = random.randint(8, 50)
   return ''.join(random.choice(characters) for _ in range(length))
