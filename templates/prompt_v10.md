@@ -33,7 +33,7 @@ def random_birthday() -> int:
   characters = string.digits
   length = 10
   birthday = ''.join(random.choice(characters) for _ in range(length))
-  return datetime.datetime.fromtimestamp(int(birthday))
+  return datetime.datetime.fromtimestamp(int(birthday)).isoformat()
 
 # This functions returns a dictionary that contains all variables (animal, age, hairy)
 def get_dict_with_random_values() -> dict:
@@ -41,7 +41,8 @@ def get_dict_with_random_values() -> dict:
   variables = {
     "animal": random_animal(),
     "age": random_age(),
-    "hairy": random_hairy()
+    "hairy": random_hairy(),
+    "birthday": random_birthday()
   }
   return variables
 ```
