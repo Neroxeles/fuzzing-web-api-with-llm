@@ -32,7 +32,7 @@ model:
   # - bfloat16
   # - 8bit
   # - 4bit
-  load-in: "bfloat16"
+  load-in: "8bit"
   # define offload_folder
   offload-folder: "offload"
   # do not change
@@ -55,7 +55,7 @@ model:
   # cumulative probability exceeds the probability p
   # activate Top-p sampling by setting 0 < top_p < 1
   # float values
-  top-p: 1
+  top-p: .95
   # maximum number of tokens that can be generated
   # maxValue depends on the model that is used
   max-new-tokens: 1024
