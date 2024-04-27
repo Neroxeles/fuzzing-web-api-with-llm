@@ -122,13 +122,16 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
           mode="w"
         )
       # Resampling if empty file/solution or missing core functions
-      if (output_tokens <= 20) or (len(get_file_content(f"{generated_code_dir}/{filename}")) < 40) or check_core_functionality(f"{generated_code_dir}/{filename}"):
+      if ((output_tokens <= config['min-tokens']) or
+          (len(get_file_content(f"{generated_code_dir}/{filename}")) < config['min-characters']) or
+          check_core_functionality(f"{generated_code_dir}/{filename}")):
         Log.content("  - Empty solution or missing functionality. Repeat process...\n")
         loop -= 1
         continue
       # add missing imports
-      if add_missing_imports(f"{generated_code_dir}/{filename}"):
-        Log.content("  - Added missing imports\n")
+      if config['add-missing-imports']:
+        if add_missing_imports(f"{generated_code_dir}/{filename}"):
+          Log.content("  - Added missing imports\n")
   #TODO FUTURE WORK: Automatically merge created Python files into one script
 
 ###########################################################################
@@ -162,6 +165,7 @@ if __name__ == "__main__":
   Log = make_logger(filepath=config_general['output-dir'] + "/logger.md")
 
   try:
+    Log.system(filepath=config_general['output-dir'] + "/system-information.md")
     # execute PHASE I
     Log.content("# Phase I\n")
     checksum = md5(config_general['oas-file'])

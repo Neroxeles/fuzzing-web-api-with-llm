@@ -58,11 +58,21 @@ model:
   top-p: 1
   # maximum number of tokens that can be generated
   # maxValue depends on the model that is used
-  max-new-tokens: 512
+  max-new-tokens: 1024
+  # define all possible sequences that point to an end of sequence
+  eos:
+    - "<|endoftext|>"
+    - "```"
+  # perform a resampling if "generated-tokens <= min-tokens" applies
+  min-tokens: 20
+  # perform a resampling if "generated-characters <= min-characters" applies
+  min-characters: 40
+  # if true, the program adds packages that are used but not imported
+  add-missing-imports: true
 
 phase-i:
   # should phase I be executed?
-  execute: true
+  execute: false
   # md5 hash of the oas to detect changes. If there are no changes to the oas,
   # phase i should not be carried out. This value is generated automatically.
   oas-checksum: ""

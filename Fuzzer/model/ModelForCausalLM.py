@@ -85,7 +85,8 @@ class Model:
       top_k: int = 0,
       top_p: float = 0,
       do_sample: bool = True,
-      max_new_tokens: int = 512
+      max_new_tokens: int = 512,
+      eos: list = []
     ) -> None:
     """Initialize any model for causal LMs"""
     login()
@@ -97,6 +98,7 @@ class Model:
     self.do_sample = do_sample
     self.top_p = top_p
     self.max_new_tokens = max_new_tokens
+    self.eos = eos
 
     device_map = load_dict_from_file(device_map_path)
     kwargs = {}
@@ -124,7 +126,6 @@ class Model:
       )
     )
 
-    self.eos = []
     self.input_str = ""
 
   def apply_template(self, template_path: str, property: dict, generated_prompts_dir: str, save_file_name: str) -> None:
@@ -150,8 +151,6 @@ class Model:
       filename=save_file_name,
       mode="w"
     )
-    # Define all possible sequences that point to an end of sequence
-    self.eos = ["<|endoftext|>", "```"]
 
   @torch.inference_mode()
   def generate(self) -> tuple[list[str], int]:
@@ -224,6 +223,7 @@ def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
     do_sample=config['do-sample'],
     cache_dir=config['cache-dir'],
     load_in=config['load-in'],
-    max_new_tokens=config['max-new-tokens']
+    max_new_tokens=config['max-new-tokens'],
+    eos=config['eos']
   )
   return model_obj
