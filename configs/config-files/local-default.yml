@@ -4,7 +4,7 @@ general:
   # the directory that contains all produced files
   output-dir: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output"
   # path to the OpenAPI specification
-  oas-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/swagger_v1.yml"
+  oas-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/swagger_v02.yml"
 
 model:
   # see also https://huggingface.co/blog/how-to-generate
@@ -18,7 +18,7 @@ model:
   # - bigcode/starcoder2-15b
   # - codellama/CodeLlama-7b-Python-hf
   # - codellama/CodeLlama-34b-Python-hf (must be loaded in 8bit) (recommended)
-  checkpoint: "bigcode/starcoderbase-1b"
+  checkpoint: "bigcode/starcoder2-3b"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
@@ -33,7 +33,7 @@ model:
   # - bfloat16
   # - 8bit
   # - 4bit
-  load-in: "bfloat16"
+  load-in: "8bit"
   # define offload_folder
   # only necessary if model layers are loaded on the hard disk
   offload-folder: "offload"
@@ -48,46 +48,46 @@ model:
   # if set to False greedy decoding is used.
   # Defaults to False
   # bool values
-  do-sample: true
+  do-sample: 
   # Number of beams for beam search. Must be between 1 and infinity. 1 means no beam search.
   # Default to 1
   # int value
-  num-beams: 1
+  num-beams: 
   # Number of groups to divide num_beams into in order to ensure diversity among different groups of
   # beams that will be used by default in the generate method of the model.
   # 1 means no group beam search.
   # Defaults to 1
   # int value
-  num-beam-groups: 1
+  num-beam-groups: 
   # Value to control contrastive search.
   # 0 <= penalty_alpha <= 1
   # leave empty for default
   # float values
-  penalty-alpha: 
+  penalty-alpha: 0.6
   # Value to control diversity for group beam search. that will be used by default in the generate
   # method of the model. 0 means no diversity penalty.
   # The higher the penalty, the more diverse are the outputs.
   # Defaults to 0.0
   # float values
-  diversity-penalty: 0.0
+  diversity-penalty: 
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # Default to 1.0
   # float values
-  temperature: 1
+  temperature: 
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
   # set 0 to deactivate
   # Default to 50
   # int values
-  top-k: 50
+  top-k: 5
   # Instead of sampling only from the most likely K words, in Top-p
   # sampling chooses from the smallest possible set of words whose
   # cumulative probability exceeds the probability p
   # activate Top-p sampling by setting 0 < top_p < 1
   # Default to 1
   # float values
-  top-p: 1
+  top-p: 
   # maximum number of tokens that can be generated
   max-new-tokens: 1024
   # define all possible sequences that point to an end of sequence
@@ -119,7 +119,7 @@ phase-ii:
   # should phase II be executed?
   execute: true
   # path to the prompt template
-  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompt_v1.md"
+  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompt_v02.md"
   # how often should the process be carried out per property?
   # replaces batch-size
   loops: 5

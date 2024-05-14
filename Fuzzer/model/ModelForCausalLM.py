@@ -80,33 +80,19 @@ class Model:
       checkpoint: str = "bigcode/starcoder2-15b",
       cache_dir:str = None,
       device: str = "cuda",
-      batch_size: int = 1,
-      temperature: float = 1.0,
-      top_k: int = 0,
-      top_p: float = 0.0,
-      do_sample: bool = True,
-      max_new_tokens: int = 512,
       eos: list = [],
-      num_beams: int = 1,
-      diversity_penalty: float = 0.0,
-      num_beam_groups: int = 1,
-      penalty_alpha: float =  None
+      num_return_sequences: int = 1,
+      max_new_tokens: int = 512,
+      generator_kwargs: dict = {}
     ) -> None:
     """Initialize any model for causal LMs"""
     login()
     self.log = logger
     self.device = device
-    self.batch_size = batch_size
-    self.temperature = temperature
-    self.top_k = top_k
-    self.do_sample = do_sample
-    self.top_p = top_p
-    self.max_new_tokens = max_new_tokens
     self.eos = eos
-    self.num_beams = num_beams
-    self.diversity_penalty = diversity_penalty
-    self.num_beam_groups = num_beam_groups
-    self.penalty_alpha = penalty_alpha
+    self.num_return_sequences = num_return_sequences
+    self.max_new_tokens = max_new_tokens
+    self.generator_kwargs = generator_kwargs
 
     device_map = load_dict_from_file(device_map_path)
     kwargs = {}
@@ -140,17 +126,14 @@ class Model:
     """Build input string for the LLM generator"""
     # Create input string for the template
     parameters = ""
-    # for item in property['items']:
-    #   parameters += "- {" + f"{item['name']}: " + "{"
-    #   for s in item['schema']:
-    #     if s == "description":
-    #       continue
-    #     parameters += f"{s}:{item['schema'][s]},"
-    #   parameters = parameters[:-1]
-    #   parameters += "}}\n"
-    # parameters = parameters[:-1]
     for item in property['items']:
-      parameters += f"- {item}\n"
+      parameters += "- {" + f"{item['name']}: " + "{"
+      for s in item['schema']:
+        if s == "description":
+          continue
+        parameters += f"{s}:{item['schema'][s]},"
+      parameters = parameters[:-1]
+      parameters += "}}\n"
     parameters = parameters[:-1]
 
     # set template & replace placeholder
@@ -186,27 +169,17 @@ class Model:
       )
     ])
 
-    kwargs = {}
-
-    if self.penalty_alpha:
-      kwargs['penalty_alpha'] = self.penalty_alpha
+    kwargs = self.generator_kwargs
 
     raw_outputs = self.model.generate(
       input_tokens,
-      max_new_tokens = self.max_new_tokens,
-      do_sample=self.do_sample,
-      top_p=self.top_p,
-      top_k=self.top_k,
-      temperature=max(self.temperature, 0.01),
-      num_return_sequences=self.batch_size,
       stopping_criteria=stopping_criteria,
       output_scores=True,
       return_dict_in_generate=True,
       repetition_penalty=1.0, # The parameter for repetition penalty. Between 1.0 and infinity. 1.0 means no penalty. Default to 1.0.
       pad_token_id=self.tokenizer.eos_token_id,
-      num_beams=self.num_beams,
-      diversity_penalty=self.diversity_penalty,
-      num_beam_groups=self.num_beam_groups,
+      max_new_tokens=self.max_new_tokens,
+      num_return_sequences=self.num_return_sequences,
       **kwargs
     )
 
@@ -230,24 +203,35 @@ class Model:
   
 def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
   """Returns an instance of the model"""
+  generator_kwargs = {}
+  if config['do-sample']:
+    generator_kwargs['do_sample'] = config['do-sample']
+  if config['top-p']:
+    generator_kwargs['top_p'] = config['top-p']
+  if config['top-k']:
+    generator_kwargs['top_k'] = config['top-k']
+  if config['temperature']:
+    generator_kwargs['temperature'] = config['temperature']
+  if config['num-beams']:
+    generator_kwargs['num_beams'] = config['num-beams']
+  if config['diversity-penalty']:
+    generator_kwargs['diversity_penalty'] = config['diversity-penalty']
+  if config['num-beam-groups']:
+    generator_kwargs['num_beam_groups'] = config['num-beam-groups']
+  if config['penalty-alpha']:
+    generator_kwargs['penalty_alpha'] = config['penalty-alpha']
+
   model_obj = Model(
     checkpoint=config['checkpoint'],
     device=config['device'],
     device_map_path=config['device-map'],
     offload_folder=config['offload-folder'],
     logger=logger,
-    batch_size=config['batch-size'],
-    temperature=config['temperature'],
-    top_k=config['top-k'],
-    top_p=config['top-p'],
-    do_sample=config['do-sample'],
     cache_dir=config['cache-dir'],
     load_in=config['load-in'],
-    max_new_tokens=config['max-new-tokens'],
     eos=config['eos'],
-    diversity_penalty=config['diversity-penalty'],
-    num_beams=config['num-beams'],
-    num_beam_groups=config['num-beam-groups'],
-    penalty_alpha=config['penalty-alpha']
+    num_return_sequences=config['batch-size'],
+    max_new_tokens=config['max-new-tokens'],
+    generator_kwargs=generator_kwargs
   )
   return model_obj

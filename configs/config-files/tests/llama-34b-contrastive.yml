@@ -11,14 +11,14 @@ model:
   load-in: "8bit"
   offload-folder: "offload"
   batch-size: 1
-  do-sample: false
-  num-beams: 1
-  num-beam-groups: 1
+  do-sample: 
+  num-beams: 
+  num-beam-groups: 
   penalty-alpha: 0.6
-  diversity-penalty: 0.0
-  temperature: 1.0
+  diversity-penalty: 
+  temperature: 
   top-k: 5
-  top-p: 1
+  top-p: 
   max-new-tokens: 1024
   eos:
     - "<|endoftext|>"

@@ -12,13 +12,13 @@ model:
   offload-folder: "offload"
   batch-size: 1
   do-sample: false
-  num-beams: 1
-  num-beam-groups: 1
+  num-beams: 
+  num-beam-groups: 
   penalty-alpha: 
-  diversity-penalty: 0.0
-  temperature: 1.0
-  top-k: 50
-  top-p: 1
+  diversity-penalty: 
+  temperature: 
+  top-k: 
+  top-p: 
   max-new-tokens: 1024
   eos:
     - "<|endoftext|>"

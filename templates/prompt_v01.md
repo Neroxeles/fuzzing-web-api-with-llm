@@ -1,8 +1,8 @@
 You are a Code generator.
 Task:
 Create a function called 'get_dict_with_random_values' in Python that generates random values for the following variables:
-- {'vendor': {'type':'string', 'pattern':'[a-zA-Z ]{2,50}'}}
-- {'product_id': {'type':'integer'}}
+- {vendor: {type:string, pattern:'[a-zA-Z ]{2,50}'}}
+- {product_id: {type:integer}}
 Think step by step:
 1. import necessary libraries
 2. Create a single function without input parameters

@@ -267,7 +267,7 @@ if __name__ == "__main__":
       Log.content(f"- start = {start}\n")
       Log.content(f"- end = {end}\n")
       Log.content(f"- passed time = {end - start} seconds\n")
-      meta_data_collector['phase-i-executed-in-sec'] = 2.231
+      meta_data_collector['phase-i-executed-in-sec'] = end - start
     else:
       Log.content("Skipped\n")
       Log.content("- Required files are already available and up to date\n- or the configuration file specifies that the process should be skipped.\n")
