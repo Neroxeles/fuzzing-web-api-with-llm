@@ -140,14 +140,17 @@ class Model:
     """Build input string for the LLM generator"""
     # Create input string for the template
     parameters = ""
+    # for item in property['items']:
+    #   parameters += "- {" + f"{item['name']}: " + "{"
+    #   for s in item['schema']:
+    #     if s == "description":
+    #       continue
+    #     parameters += f"{s}:{item['schema'][s]},"
+    #   parameters = parameters[:-1]
+    #   parameters += "}}\n"
+    # parameters = parameters[:-1]
     for item in property['items']:
-      parameters += "- {" + f"{item['name']}: " + "{"
-      for s in item['schema']:
-        if s == "description":
-          continue
-        parameters += f"{s}:{item['schema'][s]},"
-      parameters = parameters[:-1]
-      parameters += "}}\n"
+      parameters += f"- {item}\n"
     parameters = parameters[:-1]
 
     # set template & replace placeholder

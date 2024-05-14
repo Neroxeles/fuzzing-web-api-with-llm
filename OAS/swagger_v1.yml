@@ -5,22 +5,8 @@ info:
 servers:
   - url: https://testapi.home.lab
     description: HomeLab-Server
-  - url: http://localhost:3002
-    description: Local-Server
 paths:
-  /users:
-    get:
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: The user name
+  /test:
     put:
       requestBody:
         description: "none"
@@ -30,9 +16,80 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                test1:
+                  type: integer
+                test2:
+                  type: integer
+                  format: int32
+                test3:
+                  type: integer
+                  format: int64
+                test4:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  
+  /test2:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
+                  type: number
+                test2:
+                  type: number
+                  format: float
+                test3:
+                  type: number
+                  format: double
+                test4:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  /test3:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
                   type: string
-                  description: The new user name
+                test2:
+                  type: string
+                  format: date
+                test3:
+                  type: string
+                  format: date-time
+                test4:
+                  type: string
+                  format: byte
+                test5:
+                  type: string
+                  format: binary
+                test6:
+                  type: string
+                  format: password
       responses:
         '200':
           description: OK
@@ -40,91 +97,9 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: "User modified with ID: ${user_id}"
-  /sale:
-    get:
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    sale_id:
-                      type: string
-                      description: The sale ID
-                    amount:
-                      type: integer
-                      description: The amount of ordered items
-                    date_sale:
-                      type: string
-                      description: The time it was ordered
-                    order_status_id:
-                      type: string
-                      description: The order status ID
-                    update_at:
-                      type: string
-                      description: Last time modified
-                    status_name:
-                      type: string
-                      description: The current state of the order
-                    name:
-                      type: string
-                      description: The product name
-  /sale/order:
-    post:
-      requestBody:
-        description: "none"
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                product_id:
-                  type: integer
-                  description: The product ID
-                amount:
-                  type: integer
-                  description: The amount of ordered items
-      responses:
-        '201':
-          description: "none"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  sale_id:
-                    type: string
-                    description: The sale ID
-                  amount:
-                    type: integer
-                    description: The amount of ordered items
-                  date_sale:
-                    type: string
-                    description: The time it was ordered
-                  product_id:
-                    type: integer
-                    description: The product ID
-                  user_id:
-                    type: integer
-                    description: The user ID
-                  store_id:
-                    type: integer
-                    description: The store ID
-  /sale/order/{item}:
+                example: "Test"
+  /test4:
     put:
-      parameters:
-        - in: path
-          name: item
-          schema:
-            type: integer
-          required: true
-          description: The item in the list that should be deleted
       requestBody:
         description: "none"
         required: true
@@ -133,12 +108,15 @@ paths:
             schema:
               type: object
               properties:
-                product_id:
-                  type: integer
-                  description: The product ID
-                amount:
-                  type: integer
-                  description: The amount of ordered items
+                test1:
+                  type: string
+                  pattern: '[\s\S]{0,20}'
+                test2:
+                  type: string
+                  pattern: '([A-Za-z0-9]{5}-){2}[A-Za-z0-9]{5}'
+                test3:
+                  type: string
+                  pattern: '[A-Za-z0-9+/]{0,60}={0,3}'
       responses:
         '200':
           description: OK
@@ -146,16 +124,4 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: "Updated order"
-
-    delete:
-      parameters:
-        - in: path
-          name: item
-          schema:
-            type: integer
-          required: true
-          description: The item in the list that should be deleted
-      responses:
-        '200':
-          description: OK
+                example: "Test"
