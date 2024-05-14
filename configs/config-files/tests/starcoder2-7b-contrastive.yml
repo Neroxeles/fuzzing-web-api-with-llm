@@ -25,7 +25,7 @@ model:
     # - "```"
   min-tokens: 0 #20
   min-characters: 0 #40
-  max-retries: 4
+  max-retries: 0
   add-missing-imports: false
 
 phase-i:
