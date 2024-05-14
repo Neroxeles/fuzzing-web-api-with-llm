@@ -21,8 +21,15 @@ from util.Logger import (
   Logger,
   make_logger
 )
+from util.dataCollector import (
+  TableBuilder,
+  make_table_builder
+)
 from util.codegenApi import generate_client_script
 Log: Logger
+TableB: TableBuilder
+meta_data_collector: dict
+data_collector: dict = {'filename': [], 'input-tokens': [], 'output-tokens': [], 'time-in-sec': []}
 
 ###########################################################################
 # PHASE I - Generate ClientAPI
@@ -94,6 +101,9 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
       # append if property has parameters
       if prop["items"]:
         properties.append(prop)
+  TableB.set_total_properties(len(properties))
+  meta_data_collector['total-properties'] = len(properties)
+  TableB.part_1()
 
   counter = 0
   for property in properties:
@@ -108,11 +118,13 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
     )
     Log.content("done\n")
     loop = 0
+    resamplings = 0
+    retries = 0
     while loop < config['loops']:
       loop += 1
       # Generate Code-Snippets
       Log.content("- Generate content for " + "\"prompt-{:0>{}}".format(counter, 2) + ".md\":\n")
-      outputs, output_tokens = model.generate()
+      outputs, output_tokens, input_tokens, sec = model.generate()
       for output in outputs:
         filename = "snip-p{:0>{}}-b{:0>{}}".format(counter, 2, loop, 2) + ".py"
         write_str_into_file(
@@ -121,17 +133,40 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
           filename=filename,
           mode="w"
         )
+        break
       # Resampling if empty file/solution or missing core functions
       if ((output_tokens <= config['min-tokens']) or
           (len(get_file_content(f"{generated_code_dir}/{filename}")) < config['min-characters']) or
           check_core_functionality(f"{generated_code_dir}/{filename}")):
-        Log.content("  - Empty solution or missing functionality. Repeat process...\n")
-        loop -= 1
-        continue
+        Log.content("  - Empty solution or missing functionality.")
+        if retries != config['max-retries']:
+          Log.content(" Repeat process...\n")
+          resamplings += 1
+          loop -= 1
+          retries += 1
+          data_collector['filename'].append(filename.replace(".py", "") + "-failed")
+          data_collector['input-tokens'].append(input_tokens)
+          data_collector['output-tokens'].append(output_tokens)
+          data_collector['time-in-sec'].append(sec)
+          continue
+        else:
+          Log.content(" Maximum number of repetitions reached\n")
+      retries = 0
       # add missing imports
       if config['add-missing-imports']:
         if add_missing_imports(f"{generated_code_dir}/{filename}"):
           Log.content("  - Added missing imports\n")
+      TableB.part_2(
+        filename=filename.replace(".py", ""),
+        etok=input_tokens,
+        atok=output_tokens,
+        sec=sec,
+        resamplings=resamplings
+      )
+      data_collector['filename'].append(filename.replace(".py", ""))
+      data_collector['input-tokens'].append(input_tokens)
+      data_collector['output-tokens'].append(output_tokens)
+      data_collector['time-in-sec'].append(sec)
   #TODO FUTURE WORK: Automatically merge created Python files into one script
 
 ###########################################################################
@@ -160,9 +195,49 @@ if __name__ == "__main__":
   config_phase_ii: dict[str, any] = config_dict['phase-ii']
 
   config_general['api_client_lib_path'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/library"
-  config_general['output-dir'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+  date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  config_general['output-dir'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/" + date_time
   os.makedirs(config_general['output-dir'], exist_ok=True)
+  os.makedirs(config_general['output-dir']+"/data", exist_ok=True)
   Log = make_logger(filepath=config_general['output-dir'] + "/logger.md")
+  TableB = make_table_builder(
+    loops=config_dict['phase-ii']['loops'],
+    date_time=date_time,
+    filepath=config_general['output-dir']+"/data/"
+  )
+  TableB.part_3(
+    model=config_model['checkpoint'],
+    loaded_in=config_model['load-in'],
+    batch_size=config_phase_ii['loops'],
+    temperature=config_model['temperature'],
+    top_k=config_model['top-k'],
+    top_p=config_model['top-p']
+  )
+  meta_data_collector = {
+    "oas-file": config_general['oas-file'].split("/")[-1],
+    "prompt-file": config_phase_ii['template'].split("/")[-1],
+    "checkpoint": config_model['checkpoint'],
+    "device": config_model['device'],
+    "device-map": config_model['device-map'],
+    "load-in": config_model['load-in'],
+    "batch-size": config_model['batch-size'],
+    "loops": config_phase_ii['loops'],
+    "do-sample": config_model['do-sample'],
+    "temperature": config_model['temperature'],
+    "top-k": config_model['top-k'],
+    "top-p": config_model['top-p'],
+    "max-new-tokens": config_model['max-new-tokens'],
+    "eos": config_model['eos'],
+    "min-tokens": config_model['min-tokens'],
+    "min-characters": config_model['min-characters'],
+    "add-missing-imports": config_model['add-missing-imports'],
+    "execute-phase-i": config_phase_i['execute'],
+    "swagger-codegen-base-url": config_phase_i['base-url'],
+    "verify-ssl": config_phase_i['verify'],
+    "execute-phase-ii": config_phase_ii['execute'],
+    "date-time": date_time
+  }
+
 
   try:
     Log.system(filepath=config_general['output-dir'] + "/system-information.md")
@@ -192,6 +267,7 @@ if __name__ == "__main__":
       Log.content(f"- start = {start}\n")
       Log.content(f"- end = {end}\n")
       Log.content(f"- passed time = {end - start} seconds\n")
+      meta_data_collector['phase-i-executed-in-sec'] = 2.231
     else:
       Log.content("Skipped\n")
       Log.content("- Required files are already available and up to date\n- or the configuration file specifies that the process should be skipped.\n")
@@ -212,16 +288,21 @@ if __name__ == "__main__":
       Log.content("## Execution time\n")
       Log.content(f"- start = {start}\n")
       Log.content(f"- end = {end}\n")
-      Log.content(f"- passed time = {end - start} seconds\n")
+      meta_data_collector['instanciated-in-sec'] = end - start
+      Log.content(f"- passed time = {meta_data_collector['instanciated-in-sec']} seconds\n")
       Log.content("## GPU load\n")
       Log.content(f"- before model is loaded = {gpu_load} MB\n")
       Log.content(f"- after model is loaded = {print_gpu_utilization()} MB\n")
-      Log.content(f"- difference = {print_gpu_utilization() - gpu_load} MB\n")
+      meta_data_collector['used-gpu-in-mb'] = print_gpu_utilization() - gpu_load
+      Log.content(f"- difference = {meta_data_collector['used-gpu-in-mb']} MB\n")
 
       # generate content
       Log.content("# Phase II\n")
       config_phase_ii.update(config_general)
+      config_phase_ii.update(config_model)
       generate_type_generators(model=model, config=config_phase_ii)
+      TableB.write_csv_meta_data(meta_data_collector)
+      TableB.write_csv_data(data_collector)
     #TODO execute PHASE III
   except Exception as error:
     Log.content("# Exception during execution\n")

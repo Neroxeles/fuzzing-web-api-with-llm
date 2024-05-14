@@ -81,12 +81,16 @@ class Model:
       cache_dir:str = None,
       device: str = "cuda",
       batch_size: int = 1,
-      temperature: float = 1,
+      temperature: float = 1.0,
       top_k: int = 0,
-      top_p: float = 0,
+      top_p: float = 0.0,
       do_sample: bool = True,
       max_new_tokens: int = 512,
-      eos: list = []
+      eos: list = [],
+      num_beams: int = 1,
+      diversity_penalty: float = 0.0,
+      num_beam_groups: int = 1,
+      penalty_alpha: float =  None
     ) -> None:
     """Initialize any model for causal LMs"""
     login()
@@ -99,6 +103,10 @@ class Model:
     self.top_p = top_p
     self.max_new_tokens = max_new_tokens
     self.eos = eos
+    self.num_beams = num_beams
+    self.diversity_penalty = diversity_penalty
+    self.num_beam_groups = num_beam_groups
+    self.penalty_alpha = penalty_alpha
 
     device_map = load_dict_from_file(device_map_path)
     kwargs = {}
@@ -153,7 +161,7 @@ class Model:
     )
 
   @torch.inference_mode()
-  def generate(self) -> tuple[list[str], int]:
+  def generate(self) -> tuple[list[str], int, int, float]:
     """Generates Output (e.g. Python Code-Snippets)"""
     start = timer()
     #TODO experiment with padding and truncation strategies
@@ -175,6 +183,11 @@ class Model:
       )
     ])
 
+    kwargs = {}
+
+    if self.penalty_alpha:
+      kwargs['penalty_alpha'] = self.penalty_alpha
+
     raw_outputs = self.model.generate(
       input_tokens,
       max_new_tokens = self.max_new_tokens,
@@ -186,8 +199,12 @@ class Model:
       stopping_criteria=stopping_criteria,
       output_scores=True,
       return_dict_in_generate=True,
-      repetition_penalty=1.0,
-      pad_token_id=self.tokenizer.eos_token_id
+      repetition_penalty=1.0, # The parameter for repetition penalty. Between 1.0 and infinity. 1.0 means no penalty. Default to 1.0.
+      pad_token_id=self.tokenizer.eos_token_id,
+      num_beams=self.num_beams,
+      diversity_penalty=self.diversity_penalty,
+      num_beam_groups=self.num_beam_groups,
+      **kwargs
     )
 
     gen_seqs = raw_outputs.sequences[:, len(input_tokens[0]) :]
@@ -206,7 +223,7 @@ class Model:
     end = timer()
     self.log.content(f"  - Number of Output Tokens = {len(gen_seqs[0])}\n")
     self.log.content(f"  - Execution time = {end - start} seconds\n")
-    return outputs, len(gen_seqs[0])
+    return outputs, len(gen_seqs[0]), len(input_tokens[0]), end - start
   
 def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
   """Returns an instance of the model"""
@@ -224,6 +241,10 @@ def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
     cache_dir=config['cache-dir'],
     load_in=config['load-in'],
     max_new_tokens=config['max-new-tokens'],
-    eos=config['eos']
+    eos=config['eos'],
+    diversity_penalty=config['diversity-penalty'],
+    num_beams=config['num-beams'],
+    num_beam_groups=config['num-beam-groups'],
+    penalty_alpha=config['penalty-alpha']
   )
   return model_obj
