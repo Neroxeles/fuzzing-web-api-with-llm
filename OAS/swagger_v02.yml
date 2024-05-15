@@ -5,8 +5,6 @@ info:
 servers:
   - url: https://testapi.home.lab
     description: HomeLab-Server
-  - url: http://localhost:3002
-    description: Local-Server
 paths:
   /test:
     put:
@@ -19,19 +17,19 @@ paths:
               type: object
               properties:
                 test1:
-                  type: number
-                  format: float
-                  minimum: -1.23
-                  maximum: 534.74523
-                  description: float test
+                  type: integer
+                  minimum: -54
+                  maximum: 66
                 test2:
                   type: integer
-                  minimum: -1
-                  maximum: 12374234
-                  description: integer test
+                  format: int32
+                  description: Signed 32-bit integers
                 test3:
+                  type: integer
+                  format: int64
+                  description: Signed 64-bit integers
+                test4:
                   type: boolean
-                  description: boolean test
       responses:
         '200':
           description: OK
@@ -40,7 +38,67 @@ paths:
               schema:
                 type: string
                 example: "Test"
+  
   /test2:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
+                  type: number
+                  minimum: -231.234
+                  maximum: 78132
+                test4:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  /test3:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test2:
+                  type: string
+                  format: date
+                  example: 2013-12-02
+                test3:
+                  type: string
+                  format: date-time
+                  example: 2024-05-15T12:41:48.23Z
+                test4:
+                  type: string
+                  format: byte
+                  description: base64-encoded characters
+                  example: U3dhZ2dlciByb2Nrcw==
+                test5:
+                  type: string
+                  format: binary
+                  description: binary data, used to describe files
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  /test4:
     put:
       requestBody:
         description: "none"
@@ -53,22 +111,19 @@ paths:
                 test1:
                   type: string
                   pattern: '[\s\S]{0,20}'
-                  description: Test
                 test2:
                   type: string
                   pattern: '([A-Za-z0-9]{5}-){2}[A-Za-z0-9]{5}'
-                  example: 'uDqmG-jR3Bp-ad3FE'
-                  description: Test
                 test3:
                   type: string
-                  format: date-time
-                  description: Test
+                  pattern: '[A-Za-z0-9+/]{0,60}={0,3}'
                 test4:
                   type: string
-                  format: byte
-                  pattern: '[A-Za-z0-9+/]{0,60}={0,3}'
-                  example: 'U3dhZ2dlciByb2Nrcw=='
-                  description: Test
+                  enum:
+                    - asc
+                    - desc
+                    - name
+                    - age
       responses:
         '200':
           description: OK

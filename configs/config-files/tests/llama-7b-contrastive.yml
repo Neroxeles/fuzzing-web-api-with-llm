@@ -1,5 +1,5 @@
 general:
-  name: "promptV1-oasV1" # <---
+  name: "promptV2-oasV2" # <---
   output-dir: "/content/fuzzing-web-api-with-llm/output"
   oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v01.yml" # <---
 
@@ -22,11 +22,11 @@ model:
   max-new-tokens: 1024
   eos:
     - "<|endoftext|>"
-    # - "```"
+    - "```"
   min-tokens: 0 #20
   min-characters: 0 #40
-  max-retries: 4
-  add-missing-imports: false
+  max-retries: 0
+  add-missing-imports: true
 
 phase-i:
   execute: false
@@ -37,4 +37,4 @@ phase-i:
 phase-ii:
   execute: true
   template: "/content/fuzzing-web-api-with-llm/templates/prompt_v01.md" # <---
-  loops: 5
+  loops: 1
