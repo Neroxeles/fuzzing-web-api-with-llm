@@ -1,7 +1,7 @@
 general:
   name: "promptV2-oasV2" # <---
   output-dir: "/content/fuzzing-web-api-with-llm/output"
-  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v01.yml" # <---
+  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v02.yml" # <---
 
 model:
   checkpoint: "bigcode/starcoder2-7b"
@@ -36,5 +36,5 @@ phase-i:
 
 phase-ii:
   execute: true
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v01.md" # <---
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v02.md" # <---
   loops: 1
