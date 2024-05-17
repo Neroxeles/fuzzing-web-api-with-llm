@@ -1,0 +1,128 @@
+openapi: '3.0.2'
+info:
+  title: Test API
+  version: '1.0'
+servers:
+  - url: https://testapi.home.lab
+    description: HomeLab-Server
+paths:
+  /test:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
+                  type: integer
+                  minimum: -54
+                  maximum: 66
+                test2:
+                  type: integer
+                  format: int32
+                  description: Signed 32-bit integers
+                test3:
+                  type: integer
+                  format: int64
+                  description: Signed 64-bit integers
+                test4:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  
+  /test2:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
+                  type: number
+                  minimum: -231.234
+                  maximum: 78132
+                test2:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  /test3:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
+                  type: string
+                  format: date
+                  example: 2013-12-02
+                test2:
+                  type: string
+                  format: date-time
+                  example: 2024-05-15T12:41:48.23Z
+                test3:
+                  type: string
+                  pattern: '[.]{1,20}'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
+  /test4:
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test1:
+                  type: string
+                  pattern: '[\s\S]{0,20}'
+                test2:
+                  type: string
+                  pattern: '([A-Za-z0-9]{5}-){2}[A-Za-z0-9]{5}'
+                test3:
+                  type: string
+                  pattern: '[A-Za-z0-9+/]{0,60}={0,3}'
+                test4:
+                  type: string
+                  enum:
+                    - asc
+                    - desc
+                    - name
+                    - age
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Test"
