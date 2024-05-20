@@ -129,8 +129,9 @@ class Model:
     for item in property['items']:
       parameters += "- {" + f"{item['name']}: " + "{"
       for s in item['schema']:
-        # if s == "description":
-        #   continue
+        if s == "pattern":
+          parameters += f"{s}:r{item['schema'][s]},"
+          continue
         parameters += f"{s}:{item['schema'][s]},"
       parameters = parameters[:-1]
       parameters += "}}\n"
