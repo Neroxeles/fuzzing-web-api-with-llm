@@ -8,7 +8,7 @@ model:
   cache-dir: "/content/drive/MyDrive/models"
   device: "cuda"
   device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/gpu-only.json"
-  load-in: "8bit"
+  load-in: "4bit"
   offload-folder: "offload"
   batch-size: 1
   do-sample: 
