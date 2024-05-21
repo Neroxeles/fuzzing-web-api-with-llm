@@ -21,7 +21,7 @@ model:
   top-p: 
   max-new-tokens: 1024
   eos:
-    - "<|endoftext|>"
+    - "<｜end▁of▁sentence｜>"
     - "```"
   min-tokens: 20
   min-characters: 40

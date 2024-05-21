@@ -106,6 +106,7 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
   TableB.part_1()
 
   counter = 0
+  resamplings = 0
   for property in properties:
     counter += 1
     # Build input prompt
@@ -118,7 +119,6 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
     )
     Log.content("done\n")
     loop = 0
-    resamplings = 0
     retries = 0
     while loop < config['loops']:
       loop += 1
