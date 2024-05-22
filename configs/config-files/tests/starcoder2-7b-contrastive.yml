@@ -1,7 +1,7 @@
 general:
-  name: "promptV4-oasV4" # <---
+  name: "promptV4-oasV5" # <---
   output-dir: "/content/fuzzing-web-api-with-llm/output"
-  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v04.yml" # <---
+  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v05.yml" # <---
 
 model:
   checkpoint: "bigcode/starcoder2-7b"
