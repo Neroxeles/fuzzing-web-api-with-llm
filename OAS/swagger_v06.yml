@@ -1,0 +1,200 @@
+openapi: '3.0.2'
+info:
+  title: Test API
+  version: '1.0'
+servers:
+  - url: https://testapi.home.lab
+    description: HomeLab-Server
+  - url: http://localhost:3002
+    description: Local-Server
+paths:
+  /users:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+        '404':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      requestBody:
+        description: "none"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  pattern: '([A-Z])\w{2,10} ([A-Z])\w{2,10}'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        '409':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /products:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: integer
+                    name:
+                      type: string
+        '404':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /orders:
+    get:
+      responses:
+        '200':
+          description: "none"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  amount:
+                    type: integer
+                  date:
+                    type: string
+                    format: date-time
+                  store:
+                    type: string
+                  product:
+                    type: string
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                amount:
+                  type: integer
+                  minimum: 1
+                  maximum: 999999
+      responses:
+        '200':
+          description: "none"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '409':
+          description: "none"
+          content:
+            text/plain:
+              schema:
+                type: string
+  /orders/{position}:
+    get:
+      parameters:
+        - in: path
+          name: position
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          required: true
+      responses:
+        '200':
+          description: "none"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  os_id:
+                    type: string
+                  update_at:
+                    type: string
+                    format: date-time
+                  sale_id:
+                    type: string
+                  status_name:
+                    type: string
+                  amount:
+                    type: string
+                  date_sale:
+                    type: string
+                    format: date-time
+                  product:
+                    type: string
+                  store:
+                    type: string
+    put:
+      parameters:
+        - in: path
+          name: position
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  minimum: 1
+                  maximum: 999999
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      parameters:
+        - in: path
+          name: position
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          required: true
+      responses:
+        '200':
+          description: OK

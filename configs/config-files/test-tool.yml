@@ -1,27 +1,27 @@
 general:
-  name: "promptV4-oasV5" # <---
+  name: "promptV5-oasV6"
   output-dir: "/content/fuzzing-web-api-with-llm/output"
-  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v05.yml" # <---
+  oas-file: "/content/fuzzing-web-api-with-llm/OAS/swagger_v06.yml"
 
 model:
-  checkpoint: "deepseek-ai/deepseek-coder-6.7b-base"
+  checkpoint: "codellama/CodeLlama-34b-Python-hf"
   cache-dir: "/content/drive/MyDrive/models"
   device: "cuda"
   device-map: "/content/fuzzing-web-api-with-llm/configs/device-maps/gpu-only.json"
-  load-in: "bfloat16"
+  load-in: "8bit"
   offload-folder: "offload"
   batch-size: 1
-  do-sample: 
+  do-sample: false
   num-beams: 
   num-beam-groups: 
-  penalty-alpha: 0.6
+  penalty-alpha: 
   diversity-penalty: 
   temperature: 
-  top-k: 5
+  top-k: 
   top-p: 
   max-new-tokens: 1024
   eos:
-    - "<｜end▁of▁sentence｜>"
+    - "<|endoftext|>"
     - "```"
   min-tokens: 20
   min-characters: 40
@@ -36,7 +36,7 @@ phase-i:
 
 phase-ii:
   execute: true
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v04.md" # <---
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v06.md"
   loops: 1
 
 phase-iii:

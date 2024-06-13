@@ -38,3 +38,7 @@ phase-ii:
   execute: true
   template: "/content/fuzzing-web-api-with-llm/templates/prompt_v04.md" # <---
   loops: 1
+
+phase-iii:
+  execute: true
+  range: 1000

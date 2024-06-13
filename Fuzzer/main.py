@@ -26,6 +26,7 @@ from util.dataCollector import (
   make_table_builder
 )
 from util.codegenApi import generate_client_script
+import shutil
 Log: Logger
 TableB: TableBuilder
 meta_data_collector: dict
@@ -170,11 +171,150 @@ def generate_type_generators(model: Model, config: dict[str, any]) -> None:
   #TODO FUTURE WORK: Automatically merge created Python files into one script
 
 ###########################################################################
-#TODO PHASE III - Testing
+# PHASE III - Testing
 ###########################################################################
-def generate_generator() -> None:
+def generate_generator(config: dict) -> None:
   """Phase III - Testing"""
-  pass
+  # Load Specification (OAS)
+  oas_complete = load_yml_file(filepath=config['oas-file'])
+  output_dir = config['output-dir'] + "/generated-test-tool"
+  os.makedirs(output_dir + "/util", exist_ok=True)
+  content = """from __future__ import print_function
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+class ApiCalls:
+  def __init__(self) -> None:
+    configuration = swagger_client.Configuration()
+    configuration.host = 'http://localhost:3002'
+    self.api_instance = swagger_client.DefaultApi(swagger_client.ApiClient(configuration))\n
+"""
+  for path in oas_complete['paths']:
+    for method in oas_complete['paths'][path]:
+      parameters = []
+      properties = []
+      try:
+        for parameters_in_url in oas_complete['paths'][path][method]['parameters']:
+          parameters.append({
+            'name':parameters_in_url['name'],
+            'type':parameters_in_url['schema']['type']
+          })
+      except:
+        pass
+      try:
+        for properties_in_request_body in oas_complete['paths'][path][method]['requestBody']['content']['application/json']['schema']['properties']:
+          properties.append({
+            'name':properties_in_request_body,
+            'type':oas_complete['paths'][path][method]['requestBody']['content']['application/json']['schema']['properties'][properties_in_request_body]['type']
+          })
+      except:
+        pass
+      func_params = "self,"
+      for parameter in parameters:
+        func_params += parameter['name']
+        if parameter['type'] == "integer":
+          func_params += ": int,"
+        elif parameter['type'] == "string":
+          func_params += ": str,"
+        else:
+          func_params += ": any,"
+      for property in properties:
+        func_params += property['name']
+        if property['type'] == "integer":
+          func_params += ": int,"
+        elif property['type'] == "string":
+          func_params += ": str,"
+        else:
+          func_params += ": any,"
+      func_name = path.replace("/","_")[1:].replace("{","").replace("}","")
+      body_var_name = ""
+      pieces = func_name.split("_")
+      for idx, piece in enumerate(pieces):
+        if len(pieces) - idx > 2:
+          continue
+        body_var_name += piece.capitalize()
+      body_var_name += "Body("
+      for property in properties:
+        body_var_name += property['name'] + "=" + property['name'] + ","
+      body_var_name = body_var_name[:-1] + ")"
+      content += f"  def api_{func_name}_{method}({func_params[:-1]}):\n"
+      if properties:
+        content += f"    body = swagger_client.{body_var_name}\n"
+      content += f"    try:\n"
+      content += f"      api_response = self.api_instance.{func_name}_{method}("
+      for parameter in parameters:
+        content += f"{parameter['name']},"
+      if properties:
+        content += f"body"
+      if not properties and parameters:
+        content = content[:-1]
+      content += ")\n"
+      content += f"      pprint(api_response)\n"
+      content += f"    except ApiException as e:\n"
+      content += f'      print("Exception when calling DefaultApi->api_{func_name}_{method}: %s\\n" % e)\n\n'
+  content += "def make_api_caller():\n  return ApiCalls()"
+  write_str_into_file(
+    content=content,
+    directory=output_dir,
+    filename="/apiFunctions.py",
+    mode="w"
+  )
+  write_str_into_file(
+    content="",
+    directory=output_dir,
+    filename="/__init__.py",
+    mode="w"
+  )
+  write_str_into_file(
+    content="",
+    directory=output_dir + "/util",
+    filename="/__init__.py",
+    mode="w"
+  )
+  for item in os.listdir(config['output-dir'] + "/generated-code"):
+    filename = item.replace("-", "")
+    shutil.copyfile(config['output-dir'] + f"/generated-code/{item}", config['output-dir'] + f"/generated-test-tool/util/{filename}")
+  content = "from apiFunctions import make_api_caller\n"
+  counter = 0
+  for path in oas_complete['paths']:
+    for method in oas_complete['paths'][path]:
+      counter += 1
+  for item in os.listdir(output_dir + "/util"):
+    if "_" not in item:
+      temp = item.replace(".py", "")
+      content += f"from util.{temp} import get_dict_with_random_values as {temp}\n"
+  content += f'import random\n\nif __name__ == "__main__":\n  api_caller = make_api_caller()\n\n'
+  idx = 0
+  lst_dir = os.listdir(output_dir + "/util")
+  lst_dir.sort()
+  for item in lst_dir:
+    if "_" not in item:
+      temp = item.replace(".py", "")
+      idx += 1
+      content += f"  input{idx} = []\n"
+      content += f"  for i in range(0, {config['range']}):\n"
+      content += f"    input{idx}.append({temp}())\n"
+  content += f"\n  for i in range(0, {config['range']}):\n"
+  content += f"    select = random.randint(0, {counter-1})\n"
+  idx = 0
+  idx2 = 1
+  for path in oas_complete['paths']:
+    for method in oas_complete['paths'][path]:
+      content += f"    if select == {idx}:\n"
+      func_name = path.replace("/","_")[1:].replace("{","").replace("}","")
+      if ("requestBody" in oas_complete['paths'][path][method]) or ("parameters" in oas_complete['paths'][path][method]):
+        content += f"      api_caller.api_{func_name}_{method}(**input{idx2}[i])\n"
+        idx2 += 1
+      else:
+        content += f"      api_caller.api_{func_name}_{method}()\n"
+      idx += 1
+  write_str_into_file(
+    content=content,
+    directory=output_dir,
+    filename="/main.py",
+    mode="w"
+  )
 
 
 ###########################################################################
@@ -193,6 +333,7 @@ if __name__ == "__main__":
   config_model: dict[str, any] = config_dict['model']
   config_phase_i: dict[str, any] = config_dict['phase-i']
   config_phase_ii: dict[str, any] = config_dict['phase-ii']
+  config_phase_iii: dict[str, any] = config_dict['phase-iii']
 
   config_general['api_client_lib_path'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/library"
   date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -240,7 +381,9 @@ if __name__ == "__main__":
     "swagger-codegen-base-url": config_phase_i['base-url'],
     "verify-ssl": config_phase_i['verify'],
     "execute-phase-ii": config_phase_ii['execute'],
-    "date-time": date_time
+    "date-time": date_time,
+    "execute-phase-iii": config_phase_iii['execute'],
+    "phase-iii-range": config_phase_iii['range']
   }
 
 
@@ -309,6 +452,9 @@ if __name__ == "__main__":
       TableB.write_csv_meta_data(meta_data_collector)
       TableB.write_csv_data(data_collector)
     #TODO execute PHASE III
+    if config_phase_iii['execute']:
+      config_phase_iii.update(config_general)
+      generate_generator(config_phase_iii)
   except Exception as error:
     Log.content("# Exception during execution\n")
     Log.content(f"{error}")

@@ -4,20 +4,19 @@ general:
   # the directory that contains all produced files
   output-dir: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output"
   # path to the OpenAPI specification
-  oas-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/swagger_v04.yml"
+  oas-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/swagger.yml"
 
 model:
   # see also https://huggingface.co/blog/how-to-generate
   # and https://huggingface.co/transformers/v2.11.0/main_classes/model.html#transformers.PreTrainedModel.generate
   # Model can be chosen freely as long as it is a causal LM
   # following checkpoints were tested:
-  # - bigcode/starcoderbase-1b
-  # - bigcode/starcoderbase
-  # - bigcode/starcoder
   # - bigcode/starcoder2-3b
   # - bigcode/starcoder2-15b
+  # - deepseek-ai/deepseek-coder-6.7b-base
+  # - deepseek-ai/deepseek-coder-33b-base
   # - codellama/CodeLlama-7b-Python-hf
-  # - codellama/CodeLlama-34b-Python-hf (must be loaded in 8bit) (recommended)
+  # - codellama/CodeLlama-34b-Python-hf
   checkpoint: "bigcode/starcoder2-3b"
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
@@ -47,45 +46,51 @@ model:
   # activating sampling means randomly picking the next word
   # if set to False greedy decoding is used.
   # Defaults to False
+  # leave empty if not used
   # bool values
-  do-sample: 
+  do-sample: False
   # Number of beams for beam search. Must be between 1 and infinity. 1 means no beam search.
   # Default to 1
+  # leave empty if not used
   # int value
   num-beams: 
   # Number of groups to divide num_beams into in order to ensure diversity among different groups of
   # beams that will be used by default in the generate method of the model.
   # 1 means no group beam search.
   # Defaults to 1
+  # leave empty if not used
   # int value
   num-beam-groups: 
   # Value to control contrastive search.
   # 0 <= penalty_alpha <= 1
-  # leave empty for default
+  # leave empty if not used
   # float values
-  penalty-alpha: 0.6
+  penalty-alpha: 
   # Value to control diversity for group beam search. that will be used by default in the generate
   # method of the model. 0 means no diversity penalty.
   # The higher the penalty, the more diverse are the outputs.
   # Defaults to 0.0
+  # leave empty if not used
   # float values
   diversity-penalty: 
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # Default to 1.0
+  # leave empty if not used
   # float values
   temperature: 
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
-  # set 0 to deactivate
   # Default to 50
+  # leave empty if not used
   # int values
-  top-k: 5
+  top-k: 
   # Instead of sampling only from the most likely K words, in Top-p
   # sampling chooses from the smallest possible set of words whose
   # cumulative probability exceeds the probability p
   # activate Top-p sampling by setting 0 < top_p < 1
   # Default to 1
+  # leave empty if not used
   # float values
   top-p: 
   # maximum number of tokens that can be generated
@@ -105,7 +110,7 @@ model:
 
 phase-i:
   # should phase I be executed?
-  execute: false
+  execute: true
   # md5 hash of the oas to detect changes. If there are no changes to the oas,
   # phase i should not be carried out. This value is generated automatically.
   oas-checksum: ""
@@ -119,7 +124,13 @@ phase-ii:
   # should phase II be executed?
   execute: true
   # path to the prompt template
-  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompt_v04.md"
+  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompt_v05.md"
   # how often should the process be carried out per property?
   # replaces batch-size
   loops: 1
+
+phase-iii:
+  # should phase III be executed?
+  execute: true
+  # how often should the API be called
+  range: 1000
