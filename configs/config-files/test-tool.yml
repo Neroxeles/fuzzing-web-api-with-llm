@@ -29,7 +29,7 @@ model:
   add-missing-imports: true
 
 phase-i:
-  execute: false
+  execute: true
   oas-checksum: ""
   base-url: "https://generator3.swagger.io/api/"
   verify: false
