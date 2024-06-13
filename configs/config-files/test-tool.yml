@@ -29,14 +29,14 @@ model:
   add-missing-imports: true
 
 phase-i:
-  execute: true
-  oas-checksum: ""
-  base-url: "https://generator3.swagger.io/api/"
+  execute: false
+  oas-checksum: "30d365faa18f6a23e01afe4bb67f240c"
+  base-url: "https://codegen.home.lab/api/"
   verify: false
 
 phase-ii:
   execute: true
-  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v06.md"
+  template: "/content/fuzzing-web-api-with-llm/templates/prompt_v05.md"
   loops: 1
 
 phase-iii:
