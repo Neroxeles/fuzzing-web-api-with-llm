@@ -16,7 +16,6 @@ from util.util import (
   write_str_into_file,
   load_dict_from_file
 )
-from util.Logger import Logger
 
 from huggingface_hub import login
 
@@ -73,7 +72,6 @@ class EndOfFunctionCriteria(StoppingCriteria):
 class Model:
   def __init__(
       self,
-      logger: Logger,
       device_map_path: str,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
@@ -88,7 +86,6 @@ class Model:
     ) -> None:
     """Initialize any model for causal LMs"""
     login()
-    self.log = logger
     self.device = device
     self.batch_size = batch_size
     self.temperature = temperature
@@ -152,24 +149,23 @@ class Model:
     self.eos = ["<|endoftext|>", "```"]
 
   @torch.inference_mode()
-  def generate(self) -> tuple[list[str], int]:
+  def generate(self, prompt, eos, use_batch_size = True) -> list[str]:
     """Generates Output (e.g. Python Code-Snippets)"""
     start = timer()
     #TODO experiment with padding and truncation strategies
     # Converts a string to a sequence of ids (integer), using the tokenizer and vocabulary.
     input_tokens: torch.Tensor = self.tokenizer.encode(
-      text=self.input_str,
+      text=prompt,
       return_tensors="pt",
       padding=False,
       truncation=False
     ).to(self.device)
-    self.log.content(f"  - Number of Input Tokens = {len(input_tokens[0])}\n")
 
     # Define the criteria for when the generator should stop
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
         start_length=len(input_tokens[0]),
-        eos=self.eos,
+        eos=eos,
         tokenizer=self.tokenizer
       )
     ])
@@ -181,7 +177,7 @@ class Model:
       top_p=self.top_p,
       top_k=self.top_k,
       temperature=max(self.temperature, 0.01),
-      num_return_sequences=self.batch_size,
+      num_return_sequences=self.batch_size if use_batch_size == True else 1,
       stopping_criteria=stopping_criteria,
       output_scores=True,
       return_dict_in_generate=True,
@@ -202,19 +198,15 @@ class Model:
         if eos in output:
           min_index = min(min_index, output.index(eos))
       outputs.append(output[:min_index])
-    end = timer()
-    self.log.content(f"  - Number of Output Tokens = {len(gen_seqs[0])}\n")
-    self.log.content(f"  - Execution time = {end - start} seconds\n")
-    return outputs, len(gen_seqs[0])
+    return outputs
   
-def instantiate_model(config: dict[str, any], logger: Logger) -> Model:
+def instantiate_model(config: dict[str, any]) -> Model:
   """Returns an instance of the model"""
   model_obj = Model(
     checkpoint=config['checkpoint'],
     device=config['device'],
     device_map_path=config['device-map'],
     offload_folder=config['offload-folder'],
-    logger=logger,
     batch_size=config['batch-size'],
     temperature=config['temperature'],
     top_k=config['top-k'],

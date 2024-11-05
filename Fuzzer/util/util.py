@@ -1,6 +1,6 @@
 import os
 import yaml
-from pynvml import *
+# from pynvml import *
 import json
 import hashlib
 
@@ -86,14 +86,14 @@ def dir_exists(filepath: str) -> bool:
 # GPU stats
 ###########################################################################
 
-def print_gpu_utilization() -> int:
-    nvmlInit()
-    handle = nvmlDeviceGetHandleByIndex(0)
-    info = nvmlDeviceGetMemoryInfo(handle)
-    return int(info.used//1024**2)
+# def print_gpu_utilization() -> int:
+#     nvmlInit()
+#     handle = nvmlDeviceGetHandleByIndex(0)
+#     info = nvmlDeviceGetMemoryInfo(handle)
+#     return int(info.used//1024**2)
 
 
-def print_summary(result):
-    print(f"Time: {result.metrics['train_runtime']:.2f}")
-    print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
-    print_gpu_utilization()
+# def print_summary(result):
+#     print(f"Time: {result.metrics['train_runtime']:.2f}")
+#     print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
+#     print_gpu_utilization()

@@ -1,0 +1,21 @@
+scopes:
+  llm:
+    use-llm: true
+    paths:
+      /users:
+        - "get"
+        - "put"
+      /sale:
+        - "get"
+      /sale/order:
+        - "post"
+  no-llm:
+    use-llm: false
+    paths:
+      /users:
+        - "get"
+        - "put"
+      /sale:
+        - "get"
+      /sale/order:
+        - "post"

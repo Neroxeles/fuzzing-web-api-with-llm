@@ -1,0 +1,124 @@
+variables:
+  oas-path
+
+general:
+  # choose a fitting name for the current test run
+  name: "Demo"
+  # the directory that contains all produced files
+  output-dir: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/output"
+  # (url) path to the OpenAPI specification
+  oas-location: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/OAS/petstore.yaml"
+  scope-file: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/configs/config-files/scope.yml"
+  # path to the prompt template
+  template: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
+
+model:
+  # see also https://huggingface.co/blog/how-to-generate
+  # and https://huggingface.co/transformers/v2.11.0/main_classes/model.html#transformers.PreTrainedModel.generate
+  # Model can be chosen freely as long as it is a causal LM
+  # following checkpoints were tested:
+  # - bigcode/starcoder2-3b
+  # - bigcode/starcoder2-15b
+  # - deepseek-ai/deepseek-coder-6.7b-base
+  # - deepseek-ai/deepseek-coder-33b-base
+  # - codellama/CodeLlama-7b-Python-hf
+  # - codellama/CodeLlama-34b-Python-hf
+  checkpoint: "bigcode/starcoder2-3b"
+  # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
+  # default is "/.cache/huggingface/hub"
+  # leave empty for default
+  cache-dir: 
+  # choose one of the following devices
+  # - cpu (not implemented)
+  # - cuda
+  device: "cuda"
+  # choose a fitting device_map
+  device-map: 
+  # load in
+  # - bfloat16
+  # - 8bit
+  # - 4bit
+  load-in: "bfloat16"
+  # define offload_folder
+  # only necessary if model layers are loaded on the hard disk
+  offload-folder: 
+  # the batch size defines the number of samples that will be propagated.
+  # this value should always remain 1 and the "phase-ii -> loops" should be changed instead.
+  # this was implemented so that the execution time per sample can be recorded.
+  # a value greater than 1 would lead to longer generation times, as more samples are generated,
+  # but only the first sample generated is saved as a file.
+  # int values
+  batch-size: 1
+  # activating sampling means randomly picking the next word
+  # if set to False greedy decoding is used.
+  # Defaults to False
+  # leave empty if not used
+  # bool values
+  do-sample: False
+  # Number of beams for beam search. Must be between 1 and infinity. 1 means no beam search.
+  # Default to 1
+  # leave empty if not used
+  # int value
+  num-beams: 
+  # Number of groups to divide num_beams into in order to ensure diversity among different groups of
+  # beams that will be used by default in the generate method of the model.
+  # 1 means no group beam search.
+  # Defaults to 1
+  # leave empty if not used
+  # int value
+  num-beam-groups: 
+  # Value to control contrastive search.
+  # 0 <= penalty_alpha <= 1
+  # leave empty if not used
+  # float values
+  penalty-alpha: 
+  # Value to control diversity for group beam search. that will be used by default in the generate
+  # method of the model. 0 means no diversity penalty.
+  # The higher the penalty, the more diverse are the outputs.
+  # Defaults to 0.0
+  # leave empty if not used
+  # float values
+  diversity-penalty: 
+  # A higher temperature value leads to a more random output,
+  # while a lower value makes the output more deterministic
+  # Default to 1.0
+  # leave empty if not used
+  # float values
+  temperature: 
+  # top-k sampling limits the selection of the model to the k
+  # most probable tokens at each step of the output generation
+  # Default to 50
+  # leave empty if not used
+  # int values
+  top-k: 
+  # Instead of sampling only from the most likely K words, in Top-p
+  # sampling chooses from the smallest possible set of words whose
+  # cumulative probability exceeds the probability p
+  # activate Top-p sampling by setting 0 < top_p < 1
+  # Default to 1
+  # leave empty if not used
+  # float values
+  top-p: 
+  # maximum number of tokens that can be generated
+  max-new-tokens: 1024
+  # define all possible sequences that point to an end of sequence
+  eos:
+    - "<|endoftext|>"
+    - "```"
+  # perform a resampling if "generated-tokens < min-tokens" applies
+  min-tokens: 20
+  # perform a resampling if "generated-characters < min-characters" applies
+  min-characters: 40
+  # after X resamplings, save the last sample
+  max-retries: 5
+  # if true, the program adds packages to the generated code that are used but not imported
+  add-missing-imports: true
+
+swagger-codegen:
+  # define the base url for the swagger codegen api
+  # see also https://generator3.swagger.io/index.html
+  base-url: "https://generator3.swagger.io/api/"
+  # language
+  lang: "python"
+  # is set to False if a self-signed certificate is used
+  verify: true
