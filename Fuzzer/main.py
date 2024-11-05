@@ -45,7 +45,11 @@ if __name__ == "__main__":
     # INIT MODEL
     # initialize the large language model
     try:
-        model = Model()
+        torch.cuda.empty_cache()
+        model = Model(
+            checkpoint=config_dict["model"]["checkpoint"],
+            device_map_path="auto"
+        )
     except Exception as error:
         print(error)
         torch.cuda.empty_cache()
@@ -58,6 +62,10 @@ if __name__ == "__main__":
         scope=config_dict["general"]["scope-file"],
         oas_location=config_dict["general"]["oas-location"],
         template_location=config_dict["general"]["template"],
+        eos=config_dict["model"]["eos"],
+        max_resamples=config_dict["model"]["max-retries"],
+        min_chars=config_dict["model"]["min-characters"],
+        output_dir=config_dict["general"]['output-dir'],
         model=model
     ).type_generator()
 

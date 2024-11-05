@@ -178,7 +178,7 @@ class TestToolBuilder:
                     content += "      bargs = {\"body\":" + f"swagger_client.{body_var_name}" + "}\n"
                 content += f"    try:\n"
                 try:
-                    content += f"      api_instance.{re.sub(r"(\w)([A-Z])", r"\1_\2", self.__search_dict(self.oas, f"paths_{path}_{method}_operationId")).lower()}("
+                    content += "      api_instance." + re.sub(r"(\w)([A-Z])", r"\1_\2", self.__search_dict(self.oas, f"paths_{path}_{method}_operationId")).lower() + "("
                 except:
                     content += f"      api_instance.{func_name}_{method}("
                 # for parameter in parameters:
@@ -361,9 +361,9 @@ class TestToolBuilder:
                     parameters = self.__search_dict(self.oas, f"paths_{path}_{method}_parameters")
                     content += f"    parameters:\n"
                     for parameter in parameters:
-                        content += f"      - name: {parameter["name"]}\n"
+                        content += f"      - name: {parameter['name']}\n"
                         if "required" in parameter:
-                            content += f"        required_lvl: {2 if parameter["required"] == True else 0}\n"
+                            content += f"        required_lvl: {2 if parameter['required'] == True else 0}\n"
                         else:
                             content += f"        required_lvl: 1\n"
                         content += f"        use_value: \n"
@@ -372,7 +372,7 @@ class TestToolBuilder:
                 try:
                     if "required" in self.__search_dict(self.oas, f"paths_{path}_{method}_requestBody"):
                         content += f"    requestBody:\n"
-                        content += f"      required_lvl: {2 if self.oas["paths"][path][method]["requestBody"]["required"] == True else 0}\n"
+                        content += f"      required_lvl: {2 if self.oas['paths'][path][method]['requestBody']['required'] == True else 0}\n"
                     else:
                         content += f"    requestBody:\n"
                         content += f"      required_lvl: 1\n"

@@ -5,12 +5,12 @@ general:
   # choose a fitting name for the current test run
   name: "Demo"
   # the directory that contains all produced files
-  output-dir: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/output"
+  output-dir: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output"
   # (url) path to the OpenAPI specification
-  oas-location: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/OAS/petstore.yaml"
-  scope-file: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/configs/config-files/scope.yml"
+  oas-location: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/petstore.yaml"
+  scope-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/configs/config-files/scope.yml"
   # path to the prompt template
-  template: "C:/Users/schoenfe/Desktop/Projekte/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
+  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
 
 model:
   # see also https://huggingface.co/blog/how-to-generate
@@ -33,7 +33,7 @@ model:
   # - cuda
   device: "cuda"
   # choose a fitting device_map
-  device-map: 
+  device-map: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/configs/device-maps/gpu-only.json"
   # load in
   # - bfloat16
   # - 8bit
@@ -100,7 +100,7 @@ model:
   # float values
   top-p: 
   # maximum number of tokens that can be generated
-  max-new-tokens: 1024
+  max-new-tokens: 4000
   # define all possible sequences that point to an end of sequence
   eos:
     - "<|endoftext|>"

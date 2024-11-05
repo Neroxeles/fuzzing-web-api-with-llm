@@ -72,7 +72,7 @@ class EndOfFunctionCriteria(StoppingCriteria):
 class Model:
   def __init__(
       self,
-      device_map_path: str,
+      device_map_path: str = None,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
       checkpoint: str = "bigcode/starcoder2-15b",
@@ -93,7 +93,6 @@ class Model:
     self.do_sample = do_sample
     self.top_p = top_p
 
-    device_map = load_dict_from_file(device_map_path)
     kwargs = {}
 
     if load_in == "4bit":
@@ -107,12 +106,15 @@ class Model:
 
     if cache_dir:
       kwargs['cache_dir'] = cache_dir
+    if device_map_path == "auto":
+      kwargs['device_map'] = "auto"
+    elif device_map_path:
+      kwargs['device_map'] = load_dict_from_file(device_map_path)
 
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
       AutoModelForCausalLM.from_pretrained(
         checkpoint,
-        device_map=device_map,
         offload_folder=offload_folder,
         offload_state_dict=True,
         **kwargs
@@ -172,7 +174,7 @@ class Model:
 
     raw_outputs = self.model.generate(
       input_tokens,
-      max_new_tokens = 512,
+      max_new_tokens = 4000,
       do_sample=self.do_sample,
       top_p=self.top_p,
       top_k=self.top_k,

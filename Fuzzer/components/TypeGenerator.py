@@ -23,7 +23,7 @@ class TypeGenerator():
         self.output_dir_prompt: str = output_dir + "/generated-prompts"
         self.oas_location: str = oas_location
         self.template_location: str = template_location
-        self.scope: dict = scope
+        self.scope: dict = load_yml_file(scope)
         self.model: Model = model
         self.eos: list[str] = eos
         self.min_chars: int = min_chars
@@ -59,10 +59,10 @@ class TypeGenerator():
         endpoints = {}
         for path in oas["paths"]: # paths
             if str(path) in self.scope:
-                endpoints = {str(path): []}
+                endpoints[str(path)] = {}
                 for http_method in oas["paths"][path]: # http methods
                     if http_method in self.scope[path]:
-                        endpoints[str(path)].append(oas["paths"][path][http_method])
+                        endpoints[str(path)][http_method] = oas["paths"][path][http_method]
         return endpoints
     
     def __split_into_parts(self, endpoints: dict) -> list[str]:

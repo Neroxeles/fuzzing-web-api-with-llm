@@ -1,21 +1,32 @@
-scopes:
-  llm:
-    use-llm: true
-    paths:
-      /users:
-        - "get"
-        - "put"
-      /sale:
-        - "get"
-      /sale/order:
-        - "post"
-  no-llm:
-    use-llm: false
-    paths:
-      /users:
-        - "get"
-        - "put"
-      /sale:
-        - "get"
-      /sale/order:
-        - "post"
+/pet:
+  - put
+  - post
+/pet/findByStatus:
+  - get
+/pet/findByTags:
+  - get
+/pet/{petId}:
+  - get
+  - post
+  - delete
+/pet/{petId}/uploadImage:
+  - post
+/store/inventory:
+  - get
+/store/order:
+  - post
+/store/order/{orderId}:
+  - get
+  - delete
+/user:
+  - post
+/user/createWithList:
+  - post
+/user/login:
+  - get
+/user/logout:
+  - get
+/user/{username}:
+  - get
+  - put
+  - delete
