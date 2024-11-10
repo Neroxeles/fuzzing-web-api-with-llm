@@ -13,6 +13,9 @@ general:
   template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
 
 model:
+  # secret token to access models from hugging face
+  # e.g. "ww_nwdiowniudnwaoduownaASDowjpdawdwda" 
+  secret-token: "???"
   # see also https://huggingface.co/blog/how-to-generate
   # and https://huggingface.co/transformers/v2.11.0/main_classes/model.html#transformers.PreTrainedModel.generate
   # Model can be chosen freely as long as it is a causal LM
@@ -38,7 +41,7 @@ model:
   # - bfloat16
   # - 8bit
   # - 4bit
-  load-in: "bfloat16"
+  load-in: "8bit"
   # define offload_folder
   # only necessary if model layers are loaded on the hard disk
   offload-folder: 

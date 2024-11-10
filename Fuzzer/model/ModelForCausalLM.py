@@ -12,8 +12,6 @@ from transformers import (
 )
 from timeit import default_timer as timer
 from util.util import (
-  get_file_content,
-  write_str_into_file,
   load_dict_from_file
 )
 
@@ -67,11 +65,16 @@ class EndOfFunctionCriteria(StoppingCriteria):
     # Finally, it returns True if all generated sequences contain at least one of the stop strings,
     # otherwise it returns False. The done list keeps track of whether each generation is finished
     # (i.e., contains at least one stop string).
+    if all(done):
+      print(f"{len(decoded_generation)} generated Tokens", end="\n")
+    else:
+      print(f"{len(decoded_generation)} generated Tokens", end="\r")
     return all(done)
 
 class Model:
   def __init__(
       self,
+      token: str,
       device_map_path: str = None,
       offload_folder: str = "offload",
       load_in: str = "bfloat16",
@@ -82,19 +85,23 @@ class Model:
       temperature: float = 1,
       top_k: int = 0,
       top_p: float = 0,
-      do_sample: bool = True
+      do_sample: bool = True,
+      num_beams: int = None,
+      num_beam_groups: int = None,
+      penalty_alpha: float = None,
+      diversity_penalty: float = None,
+      max_new_tokens: int = 512,
+      eos: list[str] = []
     ) -> None:
     """Initialize any model for causal LMs"""
-    login()
+    # hugging face login with token
+    login(token=token)
+
     self.device = device
-    self.batch_size = batch_size
-    self.temperature = temperature
-    self.top_k = top_k
-    self.do_sample = do_sample
-    self.top_p = top_p
+    self.eos = eos
 
+    # configs to load the model
     kwargs = {}
-
     if load_in == "4bit":
       quantization_config = BitsAndBytesConfig(load_in_4bit=True)
       kwargs['quantization_config'] = quantization_config
@@ -103,14 +110,13 @@ class Model:
       kwargs['quantization_config'] = quantization_config
     else:
       kwargs['torch_dtype'] = torch.bfloat16
-
     if cache_dir:
       kwargs['cache_dir'] = cache_dir
     if device_map_path == "auto":
       kwargs['device_map'] = "auto"
     elif device_map_path:
       kwargs['device_map'] = load_dict_from_file(device_map_path)
-
+    # load from pretrained
     self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     self.model = (
       AutoModelForCausalLM.from_pretrained(
@@ -120,40 +126,37 @@ class Model:
         **kwargs
       )
     )
-
-    self.eos = []
-    self.input_str = ""
-
-  def apply_template(self, template_path: str, property: dict, generated_prompts_dir: str, save_file_name: str) -> None:
-    """Build input string for the LLM generator"""
-    # Create input string for the template
-    parameters = ""
-    for item in property['items']:
-      parameters += "- {" + f"{item['name']}: " + "{"
-      for s in item['schema']:
-        if s == "description":
-          continue
-        parameters += f"{s}:{item['schema'][s]},"
-      parameters = parameters[:-1]
-      parameters += "}}\n"
-    parameters = parameters[:-1]
-
-    # set template & replace placeholder
-    self.input_str = get_file_content(filepath=template_path).replace("<!-- insert list here -->", parameters)
-    # save prompt
-    write_str_into_file(
-      content=self.input_str,
-      directory=generated_prompts_dir,
-      filename=save_file_name,
-      mode="w"
-    )
-    # Define all possible sequences that point to an end of sequence
-    self.eos = ["<|endoftext|>", "```"]
+    
+    # configs to use the model
+    self.model_kwargs = {
+      'max_new_tokens': max_new_tokens,
+      'output_scores': True,
+      'return_dict_in_generate': True,
+      'repetition_penalty': 1.0,
+      'pad_token_id': self.tokenizer.eos_token_id,
+    }
+    if temperature:
+      self.model_kwargs['temperature'] = max(temperature, 0.01)
+    if top_p:
+      self.model_kwargs['top_p'] = top_p
+    if top_k:
+      self.model_kwargs['top_k'] = top_k
+    if batch_size:
+      self.model_kwargs['num_return_sequences'] = batch_size
+    if do_sample:
+      self.model_kwargs['do_sample'] = do_sample
+    if num_beams:
+      self.model_kwargs['num_beams'] = num_beams
+    if num_beam_groups:
+      self.model_kwargs['num_beam_groups'] = num_beam_groups
+    if penalty_alpha:
+      self.model_kwargs['penalty_alpha'] = penalty_alpha
+    if diversity_penalty:
+      self.model_kwargs['diversity_penalty'] = diversity_penalty
 
   @torch.inference_mode()
-  def generate(self, prompt, eos, use_batch_size = True) -> list[str]:
+  def generate(self, prompt) -> list[str]:
     """Generates Output (e.g. Python Code-Snippets)"""
-    start = timer()
     #TODO experiment with padding and truncation strategies
     # Converts a string to a sequence of ids (integer), using the tokenizer and vocabulary.
     input_tokens: torch.Tensor = self.tokenizer.encode(
@@ -167,24 +170,15 @@ class Model:
     stopping_criteria = StoppingCriteriaList([
       EndOfFunctionCriteria(
         start_length=len(input_tokens[0]),
-        eos=eos,
+        eos=self.eos,
         tokenizer=self.tokenizer
       )
     ])
 
     raw_outputs = self.model.generate(
       input_tokens,
-      max_new_tokens = 4000,
-      do_sample=self.do_sample,
-      top_p=self.top_p,
-      top_k=self.top_k,
-      temperature=max(self.temperature, 0.01),
-      num_return_sequences=self.batch_size if use_batch_size == True else 1,
       stopping_criteria=stopping_criteria,
-      output_scores=True,
-      return_dict_in_generate=True,
-      repetition_penalty=1.0,
-      pad_token_id=self.tokenizer.eos_token_id
+      **self.model_kwargs
     )
 
     gen_seqs = raw_outputs.sequences[:, len(input_tokens[0]) :]
@@ -201,20 +195,3 @@ class Model:
           min_index = min(min_index, output.index(eos))
       outputs.append(output[:min_index])
     return outputs
-  
-def instantiate_model(config: dict[str, any]) -> Model:
-  """Returns an instance of the model"""
-  model_obj = Model(
-    checkpoint=config['checkpoint'],
-    device=config['device'],
-    device_map_path=config['device-map'],
-    offload_folder=config['offload-folder'],
-    batch_size=config['batch-size'],
-    temperature=config['temperature'],
-    top_k=config['top-k'],
-    top_p=config['top-p'],
-    do_sample=config['do-sample'],
-    cache_dir=config['cache-dir'],
-    load_in=config['load-in']
-  )
-  return model_obj
