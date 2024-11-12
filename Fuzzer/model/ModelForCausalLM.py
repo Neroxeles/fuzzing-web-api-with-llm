@@ -126,6 +126,7 @@ class Model:
         **kwargs
       )
     )
+    self.__get_layer_information()
     
     # configs to use the model
     self.model_kwargs = {
@@ -155,8 +156,10 @@ class Model:
       self.model_kwargs['diversity_penalty'] = diversity_penalty
 
   @torch.inference_mode()
-  def generate(self, prompt) -> list[str]:
+  def generate(self, prompt, use_batch_size:bool=True) -> list[str]:
     """Generates Output (e.g. Python Code-Snippets)"""
+    if not use_batch_size:
+        self.model_kwargs['num_return_sequences'] = 1
     #TODO experiment with padding and truncation strategies
     # Converts a string to a sequence of ids (integer), using the tokenizer and vocabulary.
     input_tokens: torch.Tensor = self.tokenizer.encode(
@@ -195,3 +198,12 @@ class Model:
           min_index = min(min_index, output.index(eos))
       outputs.append(output[:min_index])
     return outputs
+  
+  def __get_layer_information(self):
+    layer_sizes_gb = {}
+    for name, param in self.model.named_parameters:
+      layer_size_gb = param.numel() * param.element_size() / 1024**3
+      layer_sizes_gb[name] = layer_size_gb
+    
+    for layer_name, size_gb in layer_sizes_gb.items():
+      print(f"{layer_name}: {size_gb:.4f} GB")

@@ -103,7 +103,7 @@ model:
   # float values
   top-p: 
   # maximum number of tokens that can be generated
-  max-new-tokens: 4000
+  max-new-tokens: 3000
   # define all possible sequences that point to an end of sequence
   eos:
     - "<|endoftext|>"

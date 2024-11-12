@@ -106,7 +106,7 @@ class TypeGenerator():
                 file_content = get_file_content(f"{self.output_dir_code}/{subprogram}")
                 if (len(file_content) < self.min_chars) or "functionname" not in file_content:
                     max_resamples -= 1
-                    output = self.model.generate(prompt=prompts[idx], eos=self.eos, use_batch_size=False)[0]
+                    output = self.model.generate(prompt=prompts[idx], use_batch_size=False)[0]
                     write_str_into_file(
                         content=output,
                         directory=self.output_dir_code,
