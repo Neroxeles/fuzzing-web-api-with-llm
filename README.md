@@ -19,6 +19,7 @@ Anleitung: https://compendium.hpc.tu-dresden.de/quickstart/getting_started/
 Es gibt grundsätzlich mehrere Möglichkeiten sich mit den Systemen zu verbinden.
 - JupyterHub (nicht empfohlen)
 - Terminal wie z.B. MobaXTerm oder Putty
+
 Weiterhin gibt es auch verschiedene Cluster mit denen man sich verbinden kann.
 - Alpha (A100 Grafikkarten)
 - Barnard (CPU only)
@@ -41,7 +42,7 @@ sbatch
 ```
 salloc
 ```
-Ich habe bisher nur mit `srun` gearbeitet. Für die wichtigsten Parameter verweise ich auf die entsprechende [Seite](https://compendium.hpc.tu-dresden.de/jobs_and_resources/slurm/) oder auf die man-pages. Ich versuche das ganze noch in Form eines Batch-Jobs aufzubereiten. Mit `srun` kann man anschließend Jobs ausführen, indem man z.B. einfach das Python-Programm ausführt.
+Ich habe bisher nur mit `srun` gearbeitet. Für die wichtigsten Parameter verweise ich auf die entsprechende [Seite](https://compendium.hpc.tu-dresden.de/jobs_and_resources/slurm/) oder auf die man-pages. Ich versuche das ganze noch in Form eines Batch-Jobs aufzubereiten.
 
 Anschließend kann man auf seinen persönlichen Ordner wechseln. Bei mir wäre dies:
 ```
@@ -49,9 +50,7 @@ cd /data/horse/ws/rosc409g-my_python_virtualenv/
 ```
 dort kann man dann auch das Projekt erstellen:
 ```
-git clone https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
-git pull rework
-git switch rework
+git clone -b rework https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
 ```
 
 In den folgenden Dateien müssen Pfadangaben noch angepasst werden:
@@ -71,7 +70,7 @@ Im Projekt selber wurde eine batch.sh Datei angelegt. Diese kann einfach ausgef�
 ### Zusammenfassung:
 
 1. VPN-Verbindung mit Cisco AnyConnect
-2. Verbindung über ein Terminal wie Cisco AnyConnect
+2. Verbindung über ein Terminal wie Putty oder MobaXTerm
 3. `srun --nodes=1 --tasks=1 --cpus-per-task=2 --mem-per-cpu=2024 --gres=gpu:1 --time=01:00:00 --pty bash` in der Konsole ausführen
 4. zu `cd /data/horse/ws/<ZIH-Username>-my_python_virtualenv/` navigieren
 5. `git clone -b rework https://github.com/Neroxeles/fuzzing-web-api-with-llm.git`
