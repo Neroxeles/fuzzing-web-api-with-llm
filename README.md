@@ -42,7 +42,7 @@ sbatch
 ```
 salloc
 ```
-Ich habe bisher nur mit `srun` gearbeitet. Für die wichtigsten Parameter verweise ich auf die entsprechende [Seite](https://compendium.hpc.tu-dresden.de/jobs_and_resources/slurm/) oder auf die man-pages. Ich versuche das ganze noch in Form eines Batch-Jobs aufzubereiten. Mit `srun` kann man anschließend Jobs ausführen, indem man z.B. einfach das Python-Programm ausführt.
+Ich habe bisher nur mit `srun` gearbeitet. Für die wichtigsten Parameter verweise ich auf die entsprechende [Seite](https://compendium.hpc.tu-dresden.de/jobs_and_resources/slurm/) oder auf die man-pages. Ich versuche das ganze noch in Form eines Batch-Jobs aufzubereiten.
 
 Anschließend kann man auf seinen persönlichen Ordner wechseln. Bei mir wäre dies:
 ```
