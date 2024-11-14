@@ -49,9 +49,7 @@ cd /data/horse/ws/rosc409g-my_python_virtualenv/
 ```
 dort kann man dann auch das Projekt erstellen:
 ```
-git clone https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
-git pull rework
-git switch rework
+git clone -b rework https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
 ```
 
 In den folgenden Dateien müssen Pfadangaben noch angepasst werden:
