@@ -60,7 +60,7 @@ class TypeGenerator():
             if str(path) in self.scope:
                 endpoints[str(path)] = {}
                 for http_method in oas["paths"][path]: # http methods
-                    if http_method in self.scope[path]:
+                    if (http_method in self.scope[path]) and (("parameters" in oas["paths"][path][http_method]) or ("requestBody" in oas["paths"][path][http_method])):
                         endpoints[str(path)][http_method] = oas["paths"][path][http_method]
         return endpoints
     
