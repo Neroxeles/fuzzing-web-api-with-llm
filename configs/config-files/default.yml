@@ -1,16 +1,13 @@
-variables:
-  oas-path
-
 general:
   # choose a fitting name for the current test run
   name: "Demo"
   # the directory that contains all produced files
-  output-dir: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/output"
+  output-dir: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/output"
   # (url) path to the OpenAPI specification
-  oas-location: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/OAS/petstore.yaml"
-  scope-file: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/configs/config-files/scope.yml"
+  oas-location: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/OAS/petstore.yaml"
+  scope-file: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/configs/config-files/scope.yml"
   # path to the prompt template
-  template: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
+  template: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
 
 model:
   # secret token to access models from hugging face
@@ -36,7 +33,7 @@ model:
   # - cuda
   device: "cuda"
   # choose a fitting device_map
-  device-map: "/home/robert/SoftwareProjekte/fuzzing-web-api-with-llm/configs/device-maps/gpu-only.json"
+  device-map: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/configs/device-maps/gpu-only.json"
   # load in
   # - bfloat16
   # - 8bit
@@ -113,7 +110,7 @@ model:
   # perform a resampling if "generated-characters < min-characters" applies
   min-characters: 40
   # after X resamplings, save the last sample
-  max-retries: 5
+  max-retries: 1
   # if true, the program adds packages to the generated code that are used but not imported
   add-missing-imports: true
 

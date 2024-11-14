@@ -92,7 +92,7 @@ if __name__ == "__main__":
         oas_location=config_dict["general"]["oas-location"],
         scope=config_dict["general"]["scope-file"],
         output_dir=str(config_dict["general"]['output-dir']) + "/test-tool",
-        generated_files=config_general['output-dir'] + '/model/code-snippets',
+        generated_files=config_general['output-dir'] + '/model/generated-code',
         set_range=10,
         config_filepath=config_filepath,
         device_map=config_dict["model"]["device-map"]

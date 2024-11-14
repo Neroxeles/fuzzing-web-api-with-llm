@@ -126,7 +126,7 @@ class Model:
         **kwargs
       )
     )
-    self.__get_layer_information()
+    # self.__get_layer_information()
     
     # configs to use the model
     self.model_kwargs = {
@@ -199,11 +199,11 @@ class Model:
       outputs.append(output[:min_index])
     return outputs
   
-  def __get_layer_information(self):
-    layer_sizes_gb = {}
-    for name, param in self.model.named_parameters:
-      layer_size_gb = param.numel() * param.element_size() / 1024**3
-      layer_sizes_gb[name] = layer_size_gb
+#   def __get_layer_information(self):
+#     layer_sizes_gb = {}
+#     for name, param in self.model.named_parameters:
+#       layer_size_gb = param.numel() * param.element_size() / 1024**3
+#       layer_sizes_gb[name] = layer_size_gb
     
-    for layer_name, size_gb in layer_sizes_gb.items():
-      print(f"{layer_name}: {size_gb:.4f} GB")
+#     for layer_name, size_gb in layer_sizes_gb.items():
+#       print(f"{layer_name}: {size_gb:.4f} GB")

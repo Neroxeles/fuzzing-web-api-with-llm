@@ -250,8 +250,8 @@ class TestToolBuilder:
                 if ("requestBody" in self.oas['paths'][path][method]) or ("parameters" in self.oas['paths'][path][method]):
                     content += f"      response = api_caller.api_{func_name}_{method}(**{generators.pop(0)[:-3]}())\n"
                 else:
-                    content += f"      api_caller.api_{func_name}_{method}()\n"
-            idx += 1
+                    content += f"      response = api_caller.api_{func_name}_{method}()\n"
+                idx += 1
         content += f"    tracker.execute_tracker_query(process_id=1, request_timestamp=response.last_request_timestamp, response_timestamp=response.last_response_timestamp, time_difference=response.last_time_difference, url=response.last_url, method=response.last_method, query_parameter=response.last_query_params, post_parameter=response.last_post_params, request_body=response.last_body, response_body=response.last_response.data, statuscode=response.last_response.status, reason=response.last_response.reason, error=None)\n"\
             "    tracker.commit()\n"\
             "  tracker.close_connection()"
