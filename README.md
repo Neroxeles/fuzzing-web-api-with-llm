@@ -71,7 +71,7 @@ Im Projekt selber wurde eine batch.sh Datei angelegt. Diese kann einfach ausgef�
 ### Zusammenfassung:
 
 1. VPN-Verbindung mit Cisco AnyConnect
-2. Verbindung über ein Terminal wie Cisco AnyConnect
+2. Verbindung über ein Terminal wie Putty oder MobaXTerm
 3. `srun --nodes=1 --tasks=1 --cpus-per-task=2 --mem-per-cpu=2024 --gres=gpu:1 --time=01:00:00 --pty bash` in der Konsole ausführen
 4. zu `cd /data/horse/ws/<ZIH-Username>-my_python_virtualenv/` navigieren
 5. `git clone -b rework https://github.com/Neroxeles/fuzzing-web-api-with-llm.git`
