@@ -19,6 +19,7 @@ Anleitung: https://compendium.hpc.tu-dresden.de/quickstart/getting_started/
 Es gibt grundsätzlich mehrere Möglichkeiten sich mit den Systemen zu verbinden.
 - JupyterHub (nicht empfohlen)
 - Terminal wie z.B. MobaXTerm oder Putty
+
 Weiterhin gibt es auch verschiedene Cluster mit denen man sich verbinden kann.
 - Alpha (A100 Grafikkarten)
 - Barnard (CPU only)
