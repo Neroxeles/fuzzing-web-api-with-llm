@@ -110,7 +110,7 @@ model:
   # perform a resampling if "generated-characters < min-characters" applies
   min-characters: 40
   # after X resamplings, save the last sample
-  max-retries: 1
+  max-retries: 0
   # if true, the program adds packages to the generated code that are used but not imported
   add-missing-imports: true
 
