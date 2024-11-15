@@ -77,6 +77,13 @@ class TypeGenerator():
         prompts = []
         for part in parts:
             prompts.append(get_file_content(filepath=self.template_location).replace("<!-- insert list here -->", part))
+        for idx, prompt in enumerate(prompts):
+            write_str_into_file(
+                content=prompt,
+                directory=self.output_dir_prompt,
+                filename="prompt-{:0>{}}.md".format(idx, 2),
+                mode="w"
+            )
         return prompts
     
     def __generate_subprograms(self, prompts: list[str]) -> list[str]:
