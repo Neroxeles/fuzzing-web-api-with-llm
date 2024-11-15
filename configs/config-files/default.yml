@@ -27,7 +27,7 @@ model:
   # Set cache directory on Google Drive -> "/content/drive/MyDrive/models"
   # default is "/.cache/huggingface/hub"
   # leave empty for default
-  cache-dir: 
+  cache-dir: "/data/horse/ws/rosc409g-my_python_virtualenv/huggingface-models"
   # choose one of the following devices
   # - cpu (not implemented)
   # - cuda
@@ -38,7 +38,7 @@ model:
   # - bfloat16
   # - 8bit
   # - 4bit
-  load-in: "8bit"
+  load-in: "bfloat16"
   # define offload_folder
   # only necessary if model layers are loaded on the hard disk
   offload-folder: 

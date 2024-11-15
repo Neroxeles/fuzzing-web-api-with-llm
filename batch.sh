@@ -7,8 +7,8 @@ if [ ! -d "/data/horse/ws/rosc409g-my_python_virtualenv/my-env" ]; then
   python -m venv --system-site-packages my-env
 fi
 source my-env/bin/activate
-pip install -r requirements.txt
 cd fuzzing-web-api-with-llm
+pip install -r requirements.txt
 python Fuzzer/main.py /data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/configs/config-files/default.yml
 deactivate
 exit
