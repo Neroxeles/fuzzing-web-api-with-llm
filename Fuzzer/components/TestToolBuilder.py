@@ -89,24 +89,25 @@ class TestToolBuilder:
             "import random\n\n"\
             "# Custom APIClient to log the request method, path, parameters, and body\n"\
             "class CustomApiClient(swagger_client.ApiClient):\n"\
-            "  def request(self, method, url, query_params=None, headers=None, body= None, post_params=None, *args, **kwargs):\n"\
+            "  def request(self, method, url, query_params=None, headers=None, post_params=None, body=None, *args, **kwargs):\n"\
             "    # Capture the HTTP method, path, parameters, and request body\n"\
             "    self.last_method = method\n"\
             "    self.last_url = url\n"\
             "    self.last_query_params = query_params\n"\
             "    self.last_body = body\n"\
+            "    self.last_header = headers\n"\
             "    self.last_post_params = post_params\n"\
             "    self.last_request_timestamp = time.time_ns()\n"\
             "    try:\n"\
             "      # Proceed with the actual request\n"\
-            "      request = super().request(method, url, query_params, headers, body, post_params, *args, **kwargs)\n"\
+            "      request = super().request(method, url, query_params, headers, post_params, body , *args, **kwargs)\n"\
             "      self.last_response_timestamp = time.time_ns()\n"\
             "      self.last_time_difference = self.last_response_timestamp - self.last_request_timestamp\n"\
             "      return request\n"\
             "    except Exception as e:\n"\
             "      self.last_response_timestamp = time.time_ns()\n"\
             "      self.last_time_difference = self.last_response_timestamp - self.last_request_timestamp\n"\
-            "      raise\n"\
+            "      raise\n\n"\
             "class ApiCalls():\n"\
             "  def __init__(self) -> None:\n"\
             "    configuration = swagger_client.Configuration()\n"\
@@ -258,9 +259,12 @@ class TestToolBuilder:
                     content += f"      response = api_caller.api_{func_name}_{method}()\n"
                 idx += 1
         content += f"    try:\n"
-        content += f"      tracker.execute_tracker_query(process_id=1, request_timestamp=api_caller.custom_api_client.last_request_timestamp, response_timestamp=api_caller.custom_api_client.last_response_timestamp, time_difference=api_caller.custom_api_client.last_time_difference, url=api_caller.custom_api_client.last_url, method=api_caller.custom_api_client.last_method, query_parameter=api_caller.custom_api_client.last_query_params, post_parameter=api_caller.custom_api_client.last_post_params, request_body=api_caller.custom_api_client.last_body, response_body=response.last_response.data, statuscode=response.last_response.status, reason=response.last_response.reason, error=None)\n"
+        content += f"      tracker.execute_tracker_query(process_id=1, request_timestamp=api_caller.custom_api_client.last_request_timestamp, response_timestamp=api_caller.custom_api_client.last_response_timestamp, time_difference=api_caller.custom_api_client.last_time_difference, url=api_caller.custom_api_client.last_url, method=api_caller.custom_api_client.last_method, query_parameter=api_caller.custom_api_client.last_query_params, post_parameter=api_caller.custom_api_client.last_post_params, request_body=api_caller.custom_api_client.last_body, response_body=response.last_response.data, request_header=api_caller.custom_api_client.last_header, response_header=response.headers if hasattr(response, 'headers') else None, statuscode=response.last_response.status, reason=response.last_response.reason, error=None)\n"
         content += f"    except:\n"
-        content += f"      tracker.execute_tracker_query(process_id=1, request_timestamp=api_caller.custom_api_client.last_request_timestamp, response_timestamp=api_caller.custom_api_client.last_response_timestamp, time_difference=api_caller.custom_api_client.last_time_difference, url=api_caller.custom_api_client.last_url, method=api_caller.custom_api_client.last_method, query_parameter=api_caller.custom_api_client.last_query_params, post_parameter=api_caller.custom_api_client.last_post_params, request_body=api_caller.custom_api_client.last_body, response_body=response.body, statuscode=response.status, reason=response.reason, error=None)\n"\
+        content += "      headers = {}\n"
+        content += "      for element in response.headers._container:\n"
+        content += "        headers[element[0]] = element[1]\n"
+        content += f"      tracker.execute_tracker_query(process_id=1, request_timestamp=api_caller.custom_api_client.last_request_timestamp, response_timestamp=api_caller.custom_api_client.last_response_timestamp, time_difference=api_caller.custom_api_client.last_time_difference, url=api_caller.custom_api_client.last_url, method=api_caller.custom_api_client.last_method, query_parameter=api_caller.custom_api_client.last_query_params, post_parameter=api_caller.custom_api_client.last_post_params, request_body=api_caller.custom_api_client.last_body, response_body=response.body, request_header=api_caller.custom_api_client.last_header, response_header=headers, statuscode=response.status, reason=response.reason, error=None)\n"\
             "    tracker.commit()\n"\
             "  tracker.close_connection()"
         write_str_into_file(
@@ -321,6 +325,8 @@ class TestToolBuilder:
             "      post_parameter TEXT,\n"\
             "      request_body TEXT,\n"\
             "      response_body TEXT,\n"\
+            "      request_header TEXT,\n"\
+            "      response_header TEXT,\n"\
             "      statuscode INTEGER,\n"\
             "      reason TEXT,\n"\
             "      error TEXT,\n"\
@@ -339,14 +345,18 @@ class TestToolBuilder:
             "    post_parameter: list,\n"\
             "    request_body: str,\n"\
             "    response_body: str,\n"\
+            "    request_header: dict,\n"\
+            "    response_header: dict,\n"\
             "    statuscode: int,\n"\
             "    reason: str,\n"\
             "    error: str\n"\
             "  ):\n"\
-            "    sql = \"INSERT INTO tracker(process_id, request_timestamp, response_timestamp, time_difference, url, method, query_parameter, post_parameter, request_body, response_body, statuscode, reason, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\"\n\n"\
+            "    sql = \"INSERT INTO tracker(process_id, request_timestamp, response_timestamp, time_difference, url, method, query_parameter, post_parameter, request_body, response_body, request_header, response_header, statuscode, reason, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\"\n\n"\
             "    json_query_parameter = json.dumps(query_parameter) if query_parameter else None\n"\
-            "    json_post_parameter = json.dumps(post_parameter) if post_parameter else None\n\n"\
-            "    self.cur.execute(sql, (process_id, request_timestamp, response_timestamp, time_difference, url, method, json_query_parameter, json_post_parameter, request_body, response_body, statuscode, reason, error))\n\n"\
+            "    json_post_parameter = json.dumps(post_parameter) if post_parameter else None\n"\
+            "    json_request_header = json.dumps(request_header) if request_header else None\n"\
+            "    json_response_header = json.dumps(response_header) if response_header else None\n\n"\
+            "    self.cur.execute(sql, (process_id, request_timestamp, response_timestamp, time_difference, url, method, json_query_parameter, json_post_parameter, request_body, response_body, json_request_header, json_response_header, statuscode, reason, error))\n\n"\
             "  def close_connection(self):\n"\
             "    self.con.close()\n\n"\
             "  def commit(self):\n"\
