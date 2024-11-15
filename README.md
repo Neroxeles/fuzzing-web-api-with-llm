@@ -65,7 +65,7 @@ cd /data/horse/ws/<ZIH-Username>-my_python_virtualenv/
 
 Clone the project repository:
 ```bash
-git clone -b rework https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
+git clone https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
 ```
 
 ### Configuration Adjustments
@@ -108,7 +108,7 @@ This script installs the required Python modules, runs the program, and logs you
    ```
 5. Clone the project repository:
    ```bash
-   git clone -b rework https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
+   git clone https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
    ```
 6. Update the configuration file (`default.yml`) and `batch.sh` with your specific paths and add the required token.
 7. Execute the batch script:
