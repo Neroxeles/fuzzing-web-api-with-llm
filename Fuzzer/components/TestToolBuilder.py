@@ -263,7 +263,7 @@ class TestToolBuilder:
         content += f"    except:\n"
         content += "      headers = {}\n"
         content += "      for element in response.headers._container:\n"
-        content += "        headers[element[0]] = element[1]\n"
+        content += "        headers[response.headers._container[element][0]] = response.headers._container[element][1]\n"
         content += f"      tracker.execute_tracker_query(process_id=1, request_timestamp=api_caller.custom_api_client.last_request_timestamp, response_timestamp=api_caller.custom_api_client.last_response_timestamp, time_difference=api_caller.custom_api_client.last_time_difference, url=api_caller.custom_api_client.last_url, method=api_caller.custom_api_client.last_method, query_parameter=api_caller.custom_api_client.last_query_params, post_parameter=api_caller.custom_api_client.last_post_params, request_body=api_caller.custom_api_client.last_body, response_body=response.body, request_header=api_caller.custom_api_client.last_header, response_header=headers, statuscode=response.status, reason=response.reason, error=None)\n"\
             "    tracker.commit()\n"\
             "  tracker.close_connection()"
