@@ -3,3 +3,4 @@ __pycache__
 /excalidraw
 /.vscode
 /offload
+/configs/config-files/local.yml

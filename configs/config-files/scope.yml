@@ -20,8 +20,8 @@
   - delete
 /user:
   - post
-/user/createWithList:
-  - post
+# /user/createWithList:
+#   - post
 /user/login:
   - get
 /user/logout:
