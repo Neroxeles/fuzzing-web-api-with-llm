@@ -78,7 +78,7 @@ class TypeGenerator():
         prompts = []
         for part in parts:
             p_temp = get_file_content(filepath=self.template_location).replace("<!-- insert oas-section here -->", part)
-            p_temp = p_temp.replace("<!-- insert data structure here -->", self.__create_data_structure(part))
+            p_temp = p_temp.replace("<!-- insert data structure here -->", self.__create_data_structure(oas_section=part))
             prompts.append(p_temp)
         for idx, prompt in enumerate(prompts):
             write_str_into_file(
@@ -214,7 +214,7 @@ class TypeGenerator():
         # Wenn der Key nicht gefunden wurde, gebe None zurück
         return None
     
-    def __create_data_structure(oas_section: str) -> str:
+    def __create_data_structure(self, oas_section: str) -> str:
         data_structure = {}
         section:dict = json.loads(oas_section)
         path = list(section.keys())[0]
