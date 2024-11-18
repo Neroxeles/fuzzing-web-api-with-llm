@@ -6,6 +6,7 @@ from util.util import (
 )
 import json
 from model.ModelForCausalLM import Model
+import re
 
 class TypeGenerator():
     def __init__(
@@ -76,7 +77,9 @@ class TypeGenerator():
         """Use the given template and the created parts to create the prompt."""
         prompts = []
         for part in parts:
-            prompts.append(get_file_content(filepath=self.template_location).replace("<!-- insert list here -->", part))
+            p_temp = get_file_content(filepath=self.template_location).replace("<!-- insert oas-section here -->", part)
+            p_temp = p_temp.replace("<!-- insert data structure here -->", self.__create_data_structure(part))
+            prompts.append(p_temp)
         for idx, prompt in enumerate(prompts):
             write_str_into_file(
                 content=prompt,
@@ -210,3 +213,15 @@ class TypeGenerator():
 
         # Wenn der Key nicht gefunden wurde, gebe None zurück
         return None
+    
+    def __create_data_structure(oas_section: str) -> str:
+        data_structure = {}
+        section:dict = json.loads(oas_section)
+        path = list(section.keys())[0]
+        if 'parameters' in section[path]:
+            for para in section[path]['parameters']:
+                data_structure['para_' + re.sub(r"(\w)([A-Z])", r"\1_\2", para['name']).lower()] = para['schema']['type']
+        if 'requestBody' in section[path]:
+            for prop in section[path]['requestBody']['content']['application/json']['schema']['properties']:
+                data_structure['prop_' + re.sub(r"(\w)([A-Z])", r"\1_\2", prop).lower()] = section[path]['requestBody']['content']['application/json']['schema']['properties'][prop]['type']
+        return json.dumps(data_structure)
