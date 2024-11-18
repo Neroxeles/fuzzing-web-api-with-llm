@@ -32,7 +32,8 @@ class TestToolBuilder:
         self.range = set_range
         self.oas_location = oas_location
         self.oas = load_yml_file(oas_location)
-        self.scope = scope
+        self.scope_location = scope
+        self.scope = load_yml_file(scope)
         self.host = host
         self.generated_files = generated_files
         self.config_filepath = config_filepath
@@ -60,7 +61,7 @@ class TestToolBuilder:
             filename = file.replace("-", "")[:7] + ".py"
             shutil.copyfile(self.generated_files + f"/{file}", self.output_dir + f"/util/{filename}")
         shutil.copyfile(self.config_filepath, self.output_dir + f"/profile/configs_generation_tool.yml")
-        shutil.copyfile(self.scope, self.output_dir + f"/profile/scope.yml")
+        shutil.copyfile(self.scope_location, self.output_dir + f"/profile/scope.yml")
         shutil.copyfile(self.oas_location, self.output_dir + f"/profile/oas.yml")
         if self.device_map:
             shutil.copyfile(self.device_map, self.output_dir + f"/profile/device_map.yml")
@@ -241,14 +242,18 @@ class TestToolBuilder:
             "    pass\n\n"\
             "  tracker.create_tables()\n"\
             "  tracker.init(process_id=1, program_version=1.0, program_name=\"test-tool-generator\", oas_version=oas['openapi'], oas_title=oas['info']['title'], api_version=oas['info']['version'], url=oas['servers'][0]['url'], configs_test_tool=json.dumps(configs_test_tool), scope=json.dumps(scope), configs_generation_tool=json.dumps(configs_generation_tool), device_map=json.dumps(device_map) if device_map else None)\n\n"\
-            f"  for i in range(0, {self.range}):\n"\
-            f"    select = random.randint(0, {api_endpoints-1})\n"
+            f"  for i in range(0, {self.range}):\n"
         generators = os.listdir(self.output_dir + "/util")
         generators.sort()
         generators.pop(0)
+        content += f"    select = random.randint(0, {len(generators)-1})\n"
         idx = 0
         for path in self.oas["paths"]:
+            if path not in self.scope:
+                continue
             for method in self.oas["paths"][path]:
+                if method not in self.scope[path]:
+                    continue
                 if not generators:
                     break
                 content += f"    if select == {idx}:\n"

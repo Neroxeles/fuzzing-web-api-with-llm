@@ -9,8 +9,8 @@
   - get
   - post
   - delete
-/pet/{petId}/uploadImage:
-  - post
+# /pet/{petId}/uploadImage:
+#  - post
 /store/inventory:
   - get
 /store/order:
