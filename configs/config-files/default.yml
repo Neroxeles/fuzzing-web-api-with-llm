@@ -7,11 +7,11 @@ general:
   oas-location: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/OAS/petstore.yaml"
   scope-file: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/configs/config-files/scope.yml"
   # path to the prompt template
-  template: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/templates/prompts/prompt_v1.md"
+  template: "/data/horse/ws/rosc409g-my_python_virtualenv/fuzzing-web-api-with-llm/templates/prompts/prompt_v2_gpt_opt.md"
 
 model:
   # secret token to access models from hugging face
-  # e.g. "ww_nwdiowniudnwaoduownaASDowjpdawdwda" 
+  # e.g. "ww_nwdiowniudnwaoduownaASDowjpdawdwda"
   secret-token: "???"
   # see also https://huggingface.co/blog/how-to-generate
   # and https://huggingface.co/transformers/v2.11.0/main_classes/model.html#transformers.PreTrainedModel.generate
@@ -41,7 +41,7 @@ model:
   load-in: "bfloat16"
   # define offload_folder
   # only necessary if model layers are loaded on the hard disk
-  offload-folder: 
+  offload-folder:
   # the batch size defines the number of samples that will be propagated.
   # this value should always remain 1 and the "phase-ii -> loops" should be changed instead.
   # this was implemented so that the execution time per sample can be recorded.
@@ -59,38 +59,38 @@ model:
   # Default to 1
   # leave empty if not used
   # int value
-  num-beams: 
+  num-beams:
   # Number of groups to divide num_beams into in order to ensure diversity among different groups of
   # beams that will be used by default in the generate method of the model.
   # 1 means no group beam search.
   # Defaults to 1
   # leave empty if not used
   # int value
-  num-beam-groups: 
+  num-beam-groups:
   # Value to control contrastive search.
   # 0 <= penalty_alpha <= 1
   # leave empty if not used
   # float values
-  penalty-alpha: 
+  penalty-alpha:
   # Value to control diversity for group beam search. that will be used by default in the generate
   # method of the model. 0 means no diversity penalty.
   # The higher the penalty, the more diverse are the outputs.
   # Defaults to 0.0
   # leave empty if not used
   # float values
-  diversity-penalty: 
+  diversity-penalty:
   # A higher temperature value leads to a more random output,
   # while a lower value makes the output more deterministic
   # Default to 1.0
   # leave empty if not used
   # float values
-  temperature: 
+  temperature:
   # top-k sampling limits the selection of the model to the k
   # most probable tokens at each step of the output generation
   # Default to 50
   # leave empty if not used
   # int values
-  top-k: 
+  top-k:
   # Instead of sampling only from the most likely K words, in Top-p
   # sampling chooses from the smallest possible set of words whose
   # cumulative probability exceeds the probability p
@@ -98,7 +98,7 @@ model:
   # Default to 1
   # leave empty if not used
   # float values
-  top-p: 
+  top-p:
   # maximum number of tokens that can be generated
   max-new-tokens: 3000
   # define all possible sequences that point to an end of sequence
