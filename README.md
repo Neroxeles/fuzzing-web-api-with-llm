@@ -69,22 +69,13 @@ git clone https://github.com/Neroxeles/fuzzing-web-api-with-llm.git
 ```
 
 ### Configuration Adjustments
-In the cloned project, update the following files with correct paths:
+In the cloned project, update the following files:
 
-1. **`configs/config-files/default.yml`**:
-   - `output-dir` (Line 5)
-   - `oas-location` (Line 7)
-   - `scope-file` (Line 8)
-   - `template` (Line 10)
-   - `cache-dir` (Line 30)
-   - `device-map` (Line 36)
+1. **Add Token**: Add the required secret token to Line 15.
+   - "fuzzing-web-api-with-llm\configs\config-files\default.yml" -> `secret-token`
 
-2. **Add Token**: Add the required secret token to Line 15 (`secret-token`).
-
-3. **`batch.sh`**:
-   - Line 3
-   - Line 5
-   - Line 12
+2. **change path**: Change path in line 3.
+   - "fuzzing-web-api-with-llm\batch.sh"
 
 Run the batch script:
 ```bash
