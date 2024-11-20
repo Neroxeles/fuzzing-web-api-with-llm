@@ -174,7 +174,7 @@ class TestToolBuilder:
                 body_var_name = body_var_name[:-1] + ")"
                 content += f"  def api_{func_name}_{method}({func_params[:-1]}):\n"
                 try:
-                    content += f"    api_instance = swagger_client.{self.oas['paths'][path][method]['tags'][0].capitalize()}Api(self.custom_api_client)\n"
+                    content += f"    api_instance = swagger_client.{''.join(word.capitalize() for word in self.oas['paths'][path][method]['tags'][0].split('_'))}Api(self.custom_api_client)\n"
                 except:
                     content += "    api_instance = swagger_client.DefaultApi(self.custom_api_client)\n"
                 if parameters:
