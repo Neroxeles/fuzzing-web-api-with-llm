@@ -44,11 +44,11 @@
   - get
   - post
 /projects/{id}/alert_management_alerts/{alert_iid}/metric_images/{metric_image_id}:
-  - put
+#   - put
   - delete
 /projects/{id}/alert_management_alerts/{alert_iid}/metric_images:
   - get
-  - post
+#   - post
 /projects/{id}/alert_management_alerts/{alert_iid}/metric_images/authorize:
   - post
 /admin/batched_background_migrations/{id}:
@@ -102,10 +102,10 @@
   - get
 /bulk_imports:
   - get
-  - post
+#   - post
 /application/appearance:
   - get
-  - put
+#   - put
 /application/plan_limits:
   - get
   - put

@@ -123,7 +123,7 @@ class TestToolBuilder:
                 properties = []
                 api_endpoints += 1
                 try:
-                    parameters_in_url = self.__search_dict(self.oas, f"paths_{path}_{method}_parameters")
+                    parameters_in_url = self.__search_dict(self.oas, f"paths|{path}|{method}|parameters")
                     for param in parameters_in_url:
                         parameters.append({
                             'name':"para_" + re.sub(r"(\w)([A-Z])", r"\1_\2", param['name']).lower(),
@@ -132,7 +132,7 @@ class TestToolBuilder:
                 except:
                     pass
                 try:
-                    properties_in_request_body = self.__search_dict(self.oas, f"paths_{path}_{method}_requestBody_content_application/json_schema_properties")
+                    properties_in_request_body = self.__search_dict(self.oas, f"paths|{path}|{method}|requestBody|content|application/json|schema|properties")
                     for prop in properties_in_request_body:
                         properties.append({
                             'name':"prop_" + re.sub(r"(\w)([A-Z])", r"\1_\2", prop).lower(),
@@ -166,7 +166,7 @@ class TestToolBuilder:
                     body_var_name += piece.capitalize()
                 body_var_name += "Body("
                 try:
-                    body_var_name = self.__search_dict(self.oas, f"paths_{path}_{method}_requestBody_content_application/json_schema_$ref").split("/")[-1] + "("
+                    body_var_name = self.__search_dict(self.oas, f"paths|{path}|{method}|requestBody|content|application/json|schema|$ref").split("/")[-1] + "("
                 except:
                     pass
                 for property in properties:
@@ -185,7 +185,7 @@ class TestToolBuilder:
                     content += "      bargs = {\"body\":" + f"swagger_client.{body_var_name}" + "}\n"
                 content += f"    try:\n"
                 try:
-                    content += "      api_instance." + re.sub(r"(\w)([A-Z])", r"\1_\2", self.__search_dict(self.oas, f"paths_{path}_{method}_operationId")).lower() + "("
+                    content += "      api_instance." + re.sub(r"(\w)([A-Z])", r"\1_\2", self.__search_dict(self.oas, f"paths|{path}|{method}|operationId")).lower() + "("
                 except:
                     content += f"      api_instance.{func_name}_{method}("
                 # for parameter in parameters:
@@ -381,7 +381,7 @@ class TestToolBuilder:
             for method in self.oas['paths'][path]:
                 content += f"  {method}:\n"
                 try:
-                    parameters = self.__search_dict(self.oas, f"paths_{path}_{method}_parameters")
+                    parameters = self.__search_dict(self.oas, f"paths|{path}|{method}|parameters")
                     content += f"    parameters:\n"
                     for parameter in parameters:
                         content += f"      - name: {parameter['name']}\n"
@@ -393,7 +393,7 @@ class TestToolBuilder:
                 except:
                     pass
                 try:
-                    if "required" in self.__search_dict(self.oas, f"paths_{path}_{method}_requestBody"):
+                    if "required" in self.__search_dict(self.oas, f"paths|{path}|{method}|requestBody"):
                         content += f"    requestBody:\n"
                         content += f"      required_lvl: {2 if self.oas['paths'][path][method]['requestBody']['required'] == True else 0}\n"
                     else:
@@ -409,7 +409,7 @@ class TestToolBuilder:
         )
     
     def __search_dict(self, dictionary: dict, path: str) -> dict | str:
-        keys = path.split("_")
+        keys = path.split("|")
 
         temp = dictionary
         for key in keys:
@@ -417,7 +417,7 @@ class TestToolBuilder:
                 temp = temp[key]
             except:
                 if "$ref" in temp:
-                    temp = self.__search_dict(dictionary, temp["$ref"].replace("/", "_")[2:])[key]
+                    temp = self.__search_dict(dictionary, temp["$ref"].replace("/", "|")[2:])[key]
                 else:
                     raise AttributeError
         return temp
