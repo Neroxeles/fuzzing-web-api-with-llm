@@ -17,6 +17,7 @@ Log: Logger
 
 if __name__ == "__main__":
     config_filepath = ""
+    current_working_dir = os.path.dirname(__file__)[:-32]
     # load configurations
     if len(sys.argv) != 1:
         config_filepath = str(sys.argv[1])
@@ -25,6 +26,12 @@ if __name__ == "__main__":
         print("e.g. 'python3 main.py \"/content/fuzzing-web-api-with-llm/configs/config-files/default.yml\"'")
         exit(0)
     config_dict = load_yml_file(config_filepath)
+    config_dict["general"]["output-dir"] = current_working_dir + config_dict["general"]["output-dir"]
+    config_dict["general"]["oas-location"] = current_working_dir + config_dict["general"]["oas-location"]
+    config_dict["general"]["scope-file"] = current_working_dir + config_dict["general"]["scope-file"]
+    config_dict["general"]["template"] = current_working_dir + config_dict["general"]["template"]
+    config_dict["model"]["cache-dir"] = current_working_dir + config_dict["model"]["cache-dir"]
+    config_dict["model"]["device-map"] = current_working_dir + config_dict["model"]["device-map"]
     config_general: dict[str, any] = config_dict['general']
 
     config_general['api_client_lib_path'] = str(config_general['output-dir']) + "/" + str(config_general['name']) + "/library"
