@@ -113,6 +113,7 @@ class Model:
     if cache_dir:
       kwargs['cache_dir'] = cache_dir
     if device_map_path == "auto":
+    # max_memory = {0: "10GiB", "cpu": "80GiB"} # https://discuss.huggingface.co/t/how-to-use-trust-remote-code-true-with-load-checkpoint-and-dispatch/39849
       kwargs['device_map'] = "auto"
     elif device_map_path:
       kwargs['device_map'] = load_dict_from_file(device_map_path)
@@ -123,6 +124,7 @@ class Model:
         checkpoint,
         offload_folder=offload_folder,
         offload_state_dict=True,
+        trust_remote_code=True,
         **kwargs
       )
     )

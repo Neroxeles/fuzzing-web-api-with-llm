@@ -1,0 +1,121 @@
+/groups/{id}/badges/{badge_id}:
+  - get
+  - put
+  - delete
+/groups/{id}/badges:
+  - get
+  - post
+/groups/{id}/badges/render:
+  - get
+/groups/{id}/access_requests/{user_id}:
+  - delete
+/groups/{id}/access_requests/{user_id}/approve:
+  - put
+/groups/{id}/access_requests:
+  - get
+  - post
+/projects/{id}/repository/merged_branches:
+  - delete
+/projects/{id}/repository/branches/{branch}:
+  - get
+  - delete
+  - head
+/projects/{id}/repository/branches:
+  - get
+  - post
+/projects/{id}/repository/branches/{branch}/unprotect:
+  - put
+/projects/{id}/repository/branches/{branch}/protect:
+  - put
+/projects/{id}/badges/{badge_id}:
+  - get
+  - put
+  - delete
+/projects/{id}/badges:
+  - get
+  - post
+/projects/{id}/badges/render:
+  - get
+/projects/{id}/access_requests/{user_id}:
+  - delete
+/projects/{id}/access_requests/{user_id}/approve:
+  - put
+/projects/{id}/access_requests:
+  - get
+  - post
+/projects/{id}/alert_management_alerts/{alert_iid}/metric_images/{metric_image_id}:
+  - put
+  - delete
+/projects/{id}/alert_management_alerts/{alert_iid}/metric_images:
+  - get
+  - post
+/projects/{id}/alert_management_alerts/{alert_iid}/metric_images/authorize:
+  - post
+/admin/batched_background_migrations/{id}:
+  - get
+/admin/batched_background_migrations:
+  - get
+/admin/batched_background_migrations/{id}/resume:
+  - put
+/admin/batched_background_migrations/{id}/pause:
+  - put
+/admin/ci/variables/{key}:
+  - get
+  - put
+  - delete
+/admin/ci/variables:
+  - get
+  - post
+/admin/databases/{database_name}/dictionary/tables/{table_name}:
+  - get
+/admin/clusters/{cluster_id}:
+  - get
+  - put
+  - delete
+/admin/clusters/add:
+  - post
+/admin/clusters:
+  - get
+/admin/migrations/{timestamp}/mark:
+  - post
+/applications/{id}:
+  - delete
+/applications:
+  - get
+  - post
+/avatar:
+  - get
+/broadcast_messages/{id}:
+  - get
+  - put
+  - delete
+/broadcast_messages:
+  - get
+  - post
+/bulk_imports/{import_id}/entities/{entity_id}:
+  - get
+/bulk_imports/{import_id}/entities:
+  - get
+/bulk_imports/{import_id}:
+  - get
+/bulk_imports/entities:
+  - get
+/bulk_imports:
+  - get
+  - post
+/application/appearance:
+  - get
+  - put
+/application/plan_limits:
+  - get
+  - put
+/metadata:
+  - get
+/version:
+  - get
+/projects/{id}/jobs:
+  - get
+/projects/{id}/jobs/{job_id}:
+  - get
+/projects/{id}/jobs/{job_id}/play:
+  - post
